@@ -12,6 +12,8 @@ package msi.gama.outputs;
 
 import static msi.gama.common.interfaces.IKeyword.LAYOUT;
 
+import java.util.LinkedHashMap;
+
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.example;
@@ -20,6 +22,8 @@ import msi.gama.precompiler.GamlAnnotations.facets;
 import msi.gama.precompiler.GamlAnnotations.inside;
 import msi.gama.precompiler.GamlAnnotations.symbol;
 import msi.gama.precompiler.GamlAnnotations.usage;
+import msi.gama.runtime.IScope;
+import msi.gama.util.tree.GamaNode;
 import msi.gama.precompiler.IConcept;
 import msi.gama.precompiler.ISymbolKind;
 import msi.gaml.compilation.ISymbol;
@@ -101,8 +105,10 @@ public class LayoutStatement extends Symbol {
 	public LayoutStatement(final IDescription desc) {
 		super(desc);
 	}
-
+	
 	@Override
 	public void setChildren(final Iterable<? extends ISymbol> children) {}
+	
+	
 
 }

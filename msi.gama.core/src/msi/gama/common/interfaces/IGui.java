@@ -13,6 +13,7 @@ package msi.gama.common.interfaces;
 import java.util.List;
 import java.util.Map;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardLayerStatement;
 import msi.gama.common.interfaces.IDisplayCreator.DisplayDescription;
 import msi.gama.kernel.experiment.IExperimentPlan;
 import msi.gama.kernel.experiment.IParameter;
@@ -96,6 +97,8 @@ public interface IGui {
 	boolean openSimulationPerspective(IModel model, String experimentId);
 
 	IDisplaySurface getDisplaySurfaceFor(final LayeredDisplayOutput output, final Object... args);
+	//new
+	IDisplaySurface getDisplaySurfaceFor(final DashboardLayerStatement output, final Object... args);
 
 	Map<String, Object> openUserInputDialog(IScope scope, String title, List<IParameter> parameters, GamaFont font);
 

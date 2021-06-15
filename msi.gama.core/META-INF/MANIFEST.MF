@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem,
  org.apache.commons.compress
 Bundle-ActivationPolicy: lazy
-Export-Package: msi.gama.common,
+Export-Package: comokit.gama.ouputs.layer.dashboard,
+ msi.gama.common,
  msi.gama.common.geometry,
  msi.gama.common.interfaces;
   uses:="org.eclipse.emf.ecore.resource,
@@ -415,9 +416,9 @@ Export-Package: msi.gama.common,
    msi.gaml.skills,
    msi.gaml.compilation,
    msi.gaml.types"
-Import-Package: org.apache.commons.lang;version="2.4.0"
 Bundle-ClassPath: schema/,
  .
 Bundle-Activator: msi.gama.common.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: msi.gama.core
+Import-Package: org.apache.commons.lang;version="2.6.0"

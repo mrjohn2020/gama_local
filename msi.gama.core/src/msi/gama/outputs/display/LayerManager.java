@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardLayer;
 import msi.gama.common.interfaces.IDisplaySurface;
 import msi.gama.common.interfaces.IGraphics;
 import msi.gama.common.interfaces.IKeyword;
@@ -71,6 +72,9 @@ public class LayerManager implements ILayerManager {
 				return new GraphicLayer(layer);
 			case OVERLAY:
 				return new OverlayLayer(layer);
+			// new
+			case DASHBOARD:
+				return new DashboardLayer(layer);
 			default:
 				return null;
 		}

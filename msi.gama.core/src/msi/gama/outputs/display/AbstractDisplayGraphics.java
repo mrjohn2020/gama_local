@@ -12,14 +12,18 @@ package msi.gama.outputs.display;
 
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.JFrame;
+
 import org.locationtech.jts.geom.Envelope;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardJFreeOutput;
 import msi.gama.common.interfaces.IDisplaySurface;
 import msi.gama.common.interfaces.IGraphics;
 import msi.gama.common.interfaces.ILayer;
 import msi.gama.metamodel.shape.GamaPoint;
 import msi.gama.outputs.LayeredDisplayData;
 import msi.gama.outputs.layers.OverlayLayer;
+import msi.gama.outputs.layers.charts.ChartJFreeChartOutput;
 
 public abstract class AbstractDisplayGraphics implements IGraphics {
 
@@ -29,7 +33,6 @@ public abstract class AbstractDisplayGraphics implements IGraphics {
 	public LayeredDisplayData data;
 	protected IDisplaySurface surface;
 	public boolean highlight = false;
-
 	protected ILayer currentLayer;
 
 	@Override
@@ -172,6 +175,10 @@ public abstract class AbstractDisplayGraphics implements IGraphics {
 	@Override
 	public Envelope getVisibleRegion() {
 		return surface.getVisibleRegionForLayer(currentLayer);
+	}
+
+	public void drawDashboard(DashboardJFreeOutput dash) {
+		// TODO Auto-generated method stub
 	}
 
 }

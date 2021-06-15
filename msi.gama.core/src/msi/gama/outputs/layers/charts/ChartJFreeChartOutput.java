@@ -35,7 +35,7 @@ import msi.gama.runtime.IScope;
 import msi.gaml.expressions.IExpression;
 import msi.gaml.operators.Cast;
 
-public class ChartJFreeChartOutput extends ChartOutput implements ChartProgressListener {
+public abstract class ChartJFreeChartOutput extends ChartOutput implements ChartProgressListener {
 
 	private BufferedImage createCompatibleImage(final int sizeX, final int sizeY) {
 		if ((int) r.getWidth() != sizeX || (int) r.getHeight() != sizeY) {
@@ -91,7 +91,9 @@ public class ChartJFreeChartOutput extends ChartOutput implements ChartProgressL
 					: IKeyword.HISTOGRAM.equals(t) ? HISTOGRAM_CHART : IKeyword.PIE.equals(t) ? PIE_CHART
 							: IKeyword.RADAR.equals(t) ? RADAR_CHART
 									: IKeyword.HEATMAP.equals(t) ? HEATMAP_CHART : IKeyword.BOX_WHISKER.equals(t)
-											? BOX_WHISKER_CHART : IKeyword.SCATTER.equals(t) ? SCATTER_CHART : XY_CHART;
+											? BOX_WHISKER_CHART : IKeyword.SCATTER.equals(t) ? SCATTER_CHART 
+													: "bubble".equals(t) ? 8
+															: "gauge".equals(t) ? 9 : XY_CHART; // add new type chart bubble (with value 8)
 
 		}
 
@@ -112,6 +114,14 @@ public class ChartJFreeChartOutput extends ChartOutput implements ChartProgressL
 			}
 			case HEATMAP_CHART: {
 				newChart = new ChartJFreeChartOutputHeatmap(scope, name, typeexp);
+				break;
+			}
+			case 8: {
+				newChart = new ChartJFreeChartOutputBubble(scope, name, typeexp);
+				break;
+			}
+			case 9: {
+				newChart = new ChartJFreeOChartOutputGauge(scope, name, typeexp);
 				break;
 			}
 			default: {

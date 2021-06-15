@@ -28,6 +28,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.ISourceProviderService;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardLayerStatement;
 import msi.gama.application.workbench.PerspectiveHelper;
 import msi.gama.application.workbench.PerspectiveHelper.SimulationPerspectiveDescriptor;
 import msi.gama.common.interfaces.IConsoleDisplayer;
@@ -673,5 +674,27 @@ public class SwtGui implements IGui {
 	public boolean isInDisplayThread() {
 		return EventQueue.isDispatchThread() || Display.getCurrent() != null;
 	}
+
+	@Override
+	public IDisplaySurface getDisplaySurfaceFor(DashboardLayerStatement output, Object... args) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	//new
+//	@Override
+//	public IDisplaySurface getDisplaySurfaceFor(DashboardLayerStatement output, Object... args) {
+//		// TODO Auto-generated method stub
+//		IDisplaySurface surface = null;
+//		final String keyword = output.getData().getDisplayType();
+//		final DisplayDescription creator = DISPLAYS.get(keyword);
+//		if (creator != null) {
+//			surface = creator.create(output, args);
+//			surface.outputReloaded();
+//		} else {
+//			throw GamaRuntimeException.error("Display " + keyword + " is not defined anywhere.", output.getScope());
+//		}
+//		return surface;
+//	}
 
 }

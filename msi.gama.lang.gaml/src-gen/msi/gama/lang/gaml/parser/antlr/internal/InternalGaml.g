@@ -3591,6 +3591,18 @@ rule_1Expr_Facets_BlockOrEnd_Key returns [AntlrDatatypeRuleToken current=new Ant
 			$current.merge(kw);
 			newLeafNode(kw, grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getLayoutKeyword_26());
 		}
+		    |
+		kw='dashboard'
+		{
+			$current.merge(kw);
+			newLeafNode(kw, grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getDashboardKeyword_27());
+		}
+		    |
+		kw='metric_group'
+		{
+			$current.merge(kw);
+			newLeafNode(kw, grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getMetric_groupKeyword_28());
+		}
 	)
 ;
 

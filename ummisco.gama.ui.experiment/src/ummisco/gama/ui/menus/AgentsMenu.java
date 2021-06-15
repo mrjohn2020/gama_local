@@ -14,6 +14,7 @@ package ummisco.gama.ui.menus;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;
@@ -36,10 +37,13 @@ import msi.gama.metamodel.population.IPopulation;
 import msi.gama.outputs.ValuedDisplayOutputFactory;
 import msi.gama.runtime.GAMA;
 import msi.gama.runtime.IScope;
+import msi.gama.util.GamaListFactory;
+import msi.gama.util.IList;
 import msi.gama.runtime.ExecutionResult;
 import msi.gaml.statements.Arguments;
 import msi.gaml.statements.IStatement;
 import msi.gaml.statements.UserCommandStatement;
+import msi.gaml.types.Types;
 import ummisco.gama.ui.resources.GamaColors;
 import ummisco.gama.ui.resources.GamaIcons;
 import ummisco.gama.ui.resources.IGamaIcons;
@@ -153,6 +157,21 @@ public class AgentsMenu extends ContributionItem {
 			}
 		}
 	};
+	
+	/**
+	 *  Create SelectionAdapter to create Agent
+	 */
+	private static SelectionAdapter tutorial = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(final SelectionEvent e) {
+			final MenuItem mi = (MenuItem) e.widget;
+			final IAgent a = (IAgent) mi.getData("agent");
+			if (a != null && !a.dead()) {
+				final IList<Map<String, Object>> list = GamaListFactory.create(Types.MAP);
+				a.getScope().getSimulation().getPopulationFor("tutor").createAgents(a.getScope(), 1, list, false, true);
+			}
+		}
+	};
 
 	public static SelectionAdapter highlighter = new SelectionAdapter() {
 
@@ -254,6 +273,10 @@ public class AgentsMenu extends ContributionItem {
 		if (agent == null) { return; }
 		GamaMenu.separate(menu, "Actions");
 		final boolean simulation = agent instanceof SimulationAgent;
+		// Create menu tutorial
+		actionAgentMenuItem(menu, agent, tutorial, GamaIcons.create(IGamaIcons.MENU_INSPECT).image(),
+					"Tutorial");
+		//
 		if (withInspect) {
 			actionAgentMenuItem(menu, agent, inspector, GamaIcons.create(IGamaIcons.MENU_INSPECT).image(),
 					"Inspect" + (topLevel ? simulation ? " simulation" : " experiment" : ""));

@@ -15,11 +15,18 @@ import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JFrame;
+
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardJFreeOutput;
+import comokit.gama.ouputs.layer.dashboard.DashboardLayerStatement;
+import comokit.gama.ouputs.layer.dashboard.DashboardOutput;
+import comokit.gama.ouputs.layer.dashboard.DashboardTestDemo;
 import msi.gama.metamodel.shape.ILocation;
 import msi.gama.outputs.layers.OverlayLayer;
+import msi.gama.outputs.layers.charts.ChartJFreeChartOutput;
 import msi.gama.outputs.layers.charts.ChartOutput;
 import msi.gama.util.file.GamaFile;
 import msi.gaml.statements.draw.DrawingAttributes;
@@ -66,6 +73,9 @@ public interface IGraphics {
 	Rectangle2D drawImage(final BufferedImage img, final DrawingAttributes attributes);
 
 	Rectangle2D drawChart(ChartOutput chart);
+	
+	// new
+	void drawDashboard(DashboardOutput dashboardOutput);
 
 	Rectangle2D drawString(final String string, final TextDrawingAttributes attributes);
 

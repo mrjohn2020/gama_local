@@ -58,7 +58,7 @@ import msi.gaml.types.Types;
 		with_sequence = true,
 		concept = { IConcept.CHART, IConcept.DISPLAY })
 @inside (
-		symbols = IKeyword.DISPLAY)
+		symbols = {IKeyword.DISPLAY, IKeyword.DASHBOARD, "metric_group", "proportion_group", "comparision_group", "diagram_group", "map_group", "table_group"} )
 @facets (
 		value = { @facet (
 				name = ChartLayerStatement.XRANGE,
@@ -164,7 +164,7 @@ import msi.gaml.types.Types;
 						name = IKeyword.TYPE,
 						type = IType.ID,
 						values = { IKeyword.XY, IKeyword.SCATTER, IKeyword.HISTOGRAM, IKeyword.SERIES, IKeyword.PIE,
-								IKeyword.RADAR, IKeyword.HEATMAP, IKeyword.BOX_WHISKER },
+								IKeyword.RADAR, IKeyword.HEATMAP, IKeyword.BOX_WHISKER, "bubble", "gauge" }, //add new value Bubble
 						optional = true,
 						doc = @doc ("the type of chart. It could be histogram, series, xy, pie, radar, heatmap or box whisker. The difference between series and xy is that the former adds an implicit x-axis that refers to the numbers of cycles, while the latter considers the first declaration of data to be its x-axis.")),
 				@facet (
@@ -436,33 +436,33 @@ public class ChartLayerStatement extends AbstractLayerStatement {
 
 		chartoutput = ChartJFreeChartOutput.createChartOutput(scope, getName(), string1);
 
-		string1 = getFacet(IKeyword.STYLE);
-		if (string1 != null) {
-			chartoutput.setStyle(scope, Cast.asString(scope, string1.value(scope)));
-		}
-
-		string1 = getFacet(IKeyword.REVERSE_AXIS);
-		if (string1 != null) {
-			chartoutput.setReverseAxis(scope, Cast.asBool(scope, string1.value(scope)));
-		}
-		string1 = getFacet(ChartLayerStatement.X_LOGSCALE);
-		if (string1 != null) {
-			chartoutput.setX_LogScale(scope, Cast.asBool(scope, string1.value(scope)));
-		}
-		string1 = getFacet(ChartLayerStatement.Y_LOGSCALE);
-		if (string1 != null) {
-			chartoutput.setY_LogScale(scope, Cast.asBool(scope, string1.value(scope)));
-		}
-
-		string1 = getFacet(ChartLayerStatement.Y2_LOGSCALE);
-		if (string1 != null) {
-			chartoutput.setY2_LogScale(scope, Cast.asBool(scope, string1.value(scope)));
-		}
-
+//		string1 = getFacet(IKeyword.STYLE);
+//		if (string1 != null) {
+//			chartoutput.setStyle(scope, Cast.asString(scope, string1.value(scope)));
+//		}
+//
+//		string1 = getFacet(IKeyword.REVERSE_AXIS);
+//		if (string1 != null) {
+//			chartoutput.setReverseAxis(scope, Cast.asBool(scope, string1.value(scope)));
+//		}
+//		string1 = getFacet(ChartLayerStatement.X_LOGSCALE);
+//		if (string1 != null) {
+//			chartoutput.setX_LogScale(scope, Cast.asBool(scope, string1.value(scope)));
+//		}
+//		string1 = getFacet(ChartLayerStatement.Y_LOGSCALE);
+//		if (string1 != null) {
+//			chartoutput.setY_LogScale(scope, Cast.asBool(scope, string1.value(scope)));
+//		}
+//
+//		string1 = getFacet(ChartLayerStatement.Y2_LOGSCALE);
+//		if (string1 != null) {
+//			chartoutput.setY2_LogScale(scope, Cast.asBool(scope, string1.value(scope)));
+//		}
+//
 		chartoutput.createChart(scope);
 		updateValues(scope);
-
-		//
+//
+		
 		boolean memorize = GamaPreferences.Displays.CHART_MEMORIZE.getValue();
 		final IExpression face = getFacet(MEMORIZE);
 		if (face != null) {
@@ -476,41 +476,41 @@ public class ChartLayerStatement extends AbstractLayerStatement {
 		chartdataset = new ChartDataSet(memorize, isBatchAndPermanent);
 		chartoutput.setChartdataset(chartdataset);
 		chartoutput.initdataset();
-
-		IExpression expr = getFacet(IKeyword.X_SERIE);
-		if (expr != null) {
-			final IExpression expval = getFacet(IKeyword.X_SERIE).resolveAgainst(scope);
-			chartdataset.setXSource(scope, expval);
-			chartoutput.setUseXSource(scope, expval);
-		}
-
-		expr = getFacet(IKeyword.X_LABELS);
-		if (expr != null) {
-			final IExpression expval = getFacet(IKeyword.X_LABELS).resolveAgainst(scope);
-			chartdataset.setXLabels(scope, expval);
-			chartoutput.setUseXLabels(scope, expval);
-		}
-
-		/*
-		 * expr = getFacet(IKeyword.Y_SERIE); if (expr!=null) { IExpression expval =
-		 * getFacet(IKeyword.Y_SERIE).resolveAgainst(scope); chartdataset.setYSource(scope,expval);
-		 * chartoutput.setUseYSource(scope,expval); }
-		 */
-		// will be added with 3d charts
-
-		expr = getFacet(IKeyword.Y_LABELS);
-		if (expr != null) {
-			final IExpression expval = getFacet(IKeyword.Y_LABELS).resolveAgainst(scope);
-			chartdataset.setYLabels(scope, expval);
-			chartoutput.setUseYLabels(scope, expval);
-		}
-		scope.addVarWithValue(ChartLayerStatement.CHARTDATASET, chartdataset);
-		for (final IStatement s : dataDeclaration.getCommands()) {
-			scope.execute(s);
-		}
-		chartdataset = (ChartDataSet) scope.getVarValue(ChartLayerStatement.CHARTDATASET);
-		chartoutput.initChart_post_data_init(scope);
-		chartoutput.updateOutput(scope);
+//
+//		IExpression expr = getFacet(IKeyword.X_SERIE);
+//		if (expr != null) {
+//			final IExpression expval = getFacet(IKeyword.X_SERIE).resolveAgainst(scope);
+//			chartdataset.setXSource(scope, expval);
+//			chartoutput.setUseXSource(scope, expval);
+//		}
+//
+//		expr = getFacet(IKeyword.X_LABELS);
+//		if (expr != null) {
+//			final IExpression expval = getFacet(IKeyword.X_LABELS).resolveAgainst(scope);
+//			chartdataset.setXLabels(scope, expval);
+//			chartoutput.setUseXLabels(scope, expval);
+//		}
+//
+//		/*
+//		 * expr = getFacet(IKeyword.Y_SERIE); if (expr!=null) { IExpression expval =
+//		 * getFacet(IKeyword.Y_SERIE).resolveAgainst(scope); chartdataset.setYSource(scope,expval);
+//		 * chartoutput.setUseYSource(scope,expval); }
+//		 */
+//		// will be added with 3d charts
+//
+//		expr = getFacet(IKeyword.Y_LABELS);
+//		if (expr != null) {
+//			final IExpression expval = getFacet(IKeyword.Y_LABELS).resolveAgainst(scope);
+//			chartdataset.setYLabels(scope, expval);
+//			chartoutput.setUseYLabels(scope, expval);
+//		}
+//		scope.addVarWithValue(ChartLayerStatement.CHARTDATASET, chartdataset);
+//		for (final IStatement s : dataDeclaration.getCommands()) {
+//			scope.execute(s);
+//		}
+//		chartdataset = (ChartDataSet) scope.getVarValue(ChartLayerStatement.CHARTDATASET);
+//		chartoutput.initChart_post_data_init(scope);
+//		chartoutput.updateOutput(scope);
 
 		return true;
 	}

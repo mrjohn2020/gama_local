@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardLayerStatement;
 import msi.gama.common.interfaces.IConsoleDisplayer;
 import msi.gama.common.interfaces.IDisplayCreator;
 import msi.gama.common.interfaces.IDisplayCreator.DisplayDescription;
@@ -486,6 +487,21 @@ public class HeadlessListener implements IGui {
 	public boolean isInDisplayThread() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	//new
+	@Override
+	public IDisplaySurface getDisplaySurfaceFor(DashboardLayerStatement output, Object... args) {
+		// TODO Auto-generated method stub
+		IDisplaySurface surface = null;
+		final IDisplayCreator creator = DISPLAYS.get("image");
+		if (creator != null) {
+			surface = creator.create(output);
+			surface.outputReloaded();
+		} else {
+			return new NullDisplaySurface();
+		}
+		return surface;
 	}
 
 }

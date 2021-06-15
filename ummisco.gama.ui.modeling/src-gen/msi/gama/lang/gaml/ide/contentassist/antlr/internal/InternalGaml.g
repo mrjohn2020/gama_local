@@ -3438,6 +3438,18 @@ rule___1Expr_Facets_BlockOrEnd_Key__Alternatives
 		'layout'
 		{ after(grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getLayoutKeyword_26()); }
 	)
+	|
+	(
+		{ before(grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getDashboardKeyword_27()); }
+		'dashboard'
+		{ after(grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getDashboardKeyword_27()); }
+	)
+	|
+	(
+		{ before(grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getMetric_groupKeyword_28()); }
+		'metric_group'
+		{ after(grammarAccess.get_1Expr_Facets_BlockOrEnd_KeyAccess().getMetric_groupKeyword_28()); }
+	)
 ;
 finally {
 	restoreStackSize(stackSize);

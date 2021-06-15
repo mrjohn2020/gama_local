@@ -39,7 +39,12 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.locationtech.jts.awt.PointTransformation;
 import org.locationtech.jts.awt.ShapeWriter;
@@ -49,11 +54,17 @@ import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Puntal;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardJFreeOutput;
+import comokit.gama.ouputs.layer.dashboard.DashboardLayerStatement;
+import comokit.gama.ouputs.layer.dashboard.DashboardOutput;
+import comokit.gama.ouputs.layer.dashboard.DashboardTestDemo;
 import msi.gama.common.geometry.AxisAngle;
 import msi.gama.common.geometry.GeometryUtils;
+import msi.gama.common.util.ImageUtils;
 import msi.gama.metamodel.shape.GamaShape;
 import msi.gama.metamodel.shape.IShape;
 import msi.gama.outputs.layers.OverlayLayer;
+import msi.gama.outputs.layers.charts.ChartJFreeChartOutput;
 import msi.gama.outputs.layers.charts.ChartOutput;
 import msi.gama.runtime.IScope;
 import msi.gama.util.GamaColor;
@@ -452,5 +463,36 @@ public class AWTDisplayGraphics extends AbstractDisplayGraphics implements Point
 		currentRenderer.drawImage(im, (int) getXOffsetInPixels(), (int) getYOffsetInPixels(), null);
 		return chartRect;
 	}
+
+	// new
+	
+//	final Rectangle2D dashRect = new Rectangle2D.Double();
+	final Rectangle2D dashRect = new Rectangle2D.Double();
+	@Override
+	public void drawDashboard(final DashboardOutput dash) {
+		// TODO Auto-generated method stub
+		dashRect.setRect(0, 0, 880, 880);
+//		final BufferedImage im =
+//				dash.getImage(getLayerWidth(), getLayerHeight(), getSurface().getData().isAntialias());
+//		currentRenderer.drawImage(im, (int) getXOffsetInPixels(), (int) getYOffsetInPixels(), null);
+//		currentRenderer.drawRect(getLayerWidth(), getLayerHeight(), getDisplayWidth(), getDisplayHeight());
+//		currentRenderer.draw(dashRect);
+//		final BufferedImage im = dash.getImage(getDisplayWidth(), getDisplayHeight(), highlight);
+//		final BufferedImage im = new BufferedImage(1000,1000, BufferedImage.TYPE_INT_RGB);
+		
+//		currentRenderer.drawImage(im, (int) getXOffsetInPixels(), (int) getYOffsetInPixels(), null);
+		
+////		JOptionPane.showMessageDialog(null, getLayerWidth());
+		
+//		currentRenderer.setColor(Color.BLACK);
+		currentRenderer.draw3DRect(2, 2, 280, 400, false);
+		currentRenderer.draw3DRect(291, 2, 280, 400, false);
+		currentRenderer.draw3DRect(582, 2, 280, 400, false);
+		currentRenderer.draw3DRect(2, 440, 280, 400, false);
+		currentRenderer.draw3DRect(291, 440, 280, 400, false);
+		currentRenderer.draw3DRect(582, 440, 280, 400, false);
+		
+	}
+
 
 }

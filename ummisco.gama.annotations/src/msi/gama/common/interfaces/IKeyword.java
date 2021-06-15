@@ -63,6 +63,8 @@ public interface IKeyword {
 	String BRIGHTER = "brighter";
 	String BROWSE = "browse";
 	String CAMERA = "camera";
+	String DASHBOARD = "dashboard";
+	String DEMO_DASHBOARD = "demo_dashboard";
 	String CAMERA_POS = "camera_pos";
 	String CAMERA_LOOK_POS = "camera_look_pos";
 	String CAMERA_UP_VECTOR = "camera_up_vector";
@@ -456,6 +458,8 @@ public interface IKeyword {
 	String WORLD_AGENT_NAME = "world";
 	String WRITABLE = "writable";
 	String WRITE = "write";
+	// dat
+	String HELLO = "hello";
 	String X = "x";
 	String XML = "xml";
 	// public static final String XOR = "xor";
