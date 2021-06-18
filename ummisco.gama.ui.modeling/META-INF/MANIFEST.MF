@@ -11,7 +11,7 @@ Require-Bundle: msi.gama.lang.gaml;visibility:=reexport,
  org.eclipse.xtext.builder,
  org.eclipse.xtext.ui.codetemplates.ui,
  msi.gama.core,
- org.antlr.runtime,
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
  org.eclipse.ui.ide,
  org.eclipse.compare,
  org.eclipse.ui.editors,
@@ -53,3 +53,4 @@ Export-Package: msi.gama.lang.gaml.ide,
 Bundle-Activator: ummisco.gama.ui.modeling.internal.ModelingActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: ummisco.gama.ui.modeling
+Import-Package: org.apache.log4j

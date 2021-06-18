@@ -32,14 +32,22 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 import org.locationtech.jts.awt.PointTransformation;
 import org.locationtech.jts.awt.ShapeWriter;
@@ -49,6 +57,7 @@ import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.Lineal;
 import org.locationtech.jts.geom.Puntal;
 
+import comokit.gama.ouputs.layer.dashboard.DashboardOutput;
 import msi.gama.common.geometry.AxisAngle;
 import msi.gama.common.geometry.GeometryUtils;
 import msi.gama.metamodel.shape.GamaShape;
@@ -452,5 +461,28 @@ public class AWTDisplayGraphics extends AbstractDisplayGraphics implements Point
 		currentRenderer.drawImage(im, (int) getXOffsetInPixels(), (int) getYOffsetInPixels(), null);
 		return chartRect;
 	}
+
+	// Loading....
+	final Rectangle2D dashRect = new Rectangle2D.Double();
+	@Override
+	public Rectangle2D drawDashboard(final DashboardOutput dash) {
+		// TODO Auto-generated method stub
+
+		// Loading......
+		dashRect.setRect(0, 0, 880, 880);
+		currentRenderer.draw(dashRect);
+		
+		currentRenderer.setColor(Color.BLACK);
+		currentRenderer.draw3DRect(2, 2, 280, 400, false);
+		currentRenderer.draw3DRect(291, 2, 280, 400, false);
+		currentRenderer.draw3DRect(582, 2, 280, 400, false);
+		currentRenderer.draw3DRect(2, 440, 280, 400, false);
+		currentRenderer.draw3DRect(291, 440, 280, 400, false);
+		currentRenderer.draw3DRect(582, 440, 280, 400, false);
+		
+		
+		return dashRect;
+	}
+
 
 }

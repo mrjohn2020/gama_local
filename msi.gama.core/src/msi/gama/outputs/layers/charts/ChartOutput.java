@@ -115,7 +115,9 @@ public abstract class ChartOutput {
 				: IKeyword.HISTOGRAM.equals(t) ? HISTOGRAM_CHART
 						: IKeyword.RADAR.equals(t) ? RADAR_CHART
 								: IKeyword.PIE.equals(t) ? PIE_CHART : IKeyword.BOX_WHISKER.equals(t)
-										? BOX_WHISKER_CHART : IKeyword.SCATTER.equals(t) ? SCATTER_CHART : XY_CHART;
+										? BOX_WHISKER_CHART : IKeyword.SCATTER.equals(t) ? SCATTER_CHART 
+												: "bubble".equals(t) ? 8
+														: "gauge".equals(t) ? 9 : XY_CHART; // add new type chart bubble (with value 8);
 		axesColor = new GamaColor(Color.black);
 	}
 

@@ -17,9 +17,17 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import javax.swing.JFrame;
+
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.swt.GLCanvas;
+
+import comokit.gama.ouputs.layer.dashboard.DashboardJFreeOutput;
+import comokit.gama.ouputs.layer.dashboard.DashboardLayerStatement;
+import comokit.gama.ouputs.layer.dashboard.DashboardOutput;
+import comokit.gama.ouputs.layer.dashboard.DashboardTestDemo;
+
 import org.locationtech.jts.geom.Geometry;
 
 import msi.gama.common.interfaces.IDisplaySurface;
@@ -28,6 +36,7 @@ import msi.gama.metamodel.shape.GamaPoint;
 import msi.gama.metamodel.shape.ILocation;
 import msi.gama.metamodel.shape.IShape;
 import msi.gama.outputs.display.AbstractDisplayGraphics;
+import msi.gama.outputs.layers.charts.ChartJFreeChartOutput;
 import msi.gama.outputs.layers.charts.ChartOutput;
 import msi.gama.util.GamaColor;
 import msi.gama.util.file.GamaFile;
@@ -517,5 +526,21 @@ public class JOGLRenderer extends AbstractDisplayGraphics implements IOpenGLRend
 	public boolean isDisposed() {
 		return disposed;
 	}
+
+	@Override
+	public Rectangle2D drawDashboard(final DashboardOutput dash) {
+		// TODO Auto-generated method stub
+		final ModelScene scene = sceneHelper.getSceneToUpdate();
+//		if (scene == null) { return null; }
+		int x = getLayerWidth();
+		int y = getLayerHeight();
+		x = (int) (Math.min(x, y) * 0.80);
+		y = x;
+		// TODO See if it not possible to generate directly a texture renderer instead
+		final BufferedImage im = dash.getImage(x, y, getSurface().getData().isAntialias());
+		scene.addImage(im, new FileDrawingAttributes(null, true));
+		return rect;
+	}
+
 
 }

@@ -35,6 +35,7 @@ public interface IConcept {
 	public static final String BDI						= "bdi";
 	public static final String BEHAVIOR					= "behavior";
 	public static final String CAMERA					= "camera";
+	public static final String DASHBOARD				= "dashboard";
 	public static final String CAST						= "cast";
 	public static final String CHART					= "chart";
 	public static final String CLUSTERING				= "clustering";

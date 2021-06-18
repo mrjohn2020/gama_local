@@ -64,7 +64,7 @@ import msi.gaml.types.IType;
 				value = "Outputting a message",
 				examples = { @example ("write 'This is a message from ' + self;") }) })
 public class WriteStatement extends AbstractStatement {
-
+	                                
 	@Override
 	public String getTrace(final IScope scope) {
 		// We dont trace write statements
