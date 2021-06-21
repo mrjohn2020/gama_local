@@ -200,7 +200,7 @@ public class LayeredDisplayDecorator implements DisplayDataListener {
 		}
 	}
 
-	public void createSidePanel(final SashForm form) {
+	public void createSidePanel(final Composite form) {
 
 		sidePanel = new Composite(form, SWT.BORDER);
 		final GridLayout layout = new GridLayout(1, true);
@@ -212,7 +212,7 @@ public class LayeredDisplayDecorator implements DisplayDataListener {
 		// sidePanel.setBackground(IGamaColors.WHITE.color());
 	}
 
-	public void createDecorations(final SashForm form) {
+	public void createDecorations( ) {
 		final LayerSideControls side = new LayerSideControls();
 		side.fill(sidePanel, view);
 		createOverlay();
