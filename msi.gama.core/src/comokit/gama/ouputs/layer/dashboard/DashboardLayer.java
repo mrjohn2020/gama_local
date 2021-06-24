@@ -29,13 +29,13 @@ public class DashboardLayer extends AbstractLayer {
 		return "Dashboard layer";
 	}
 	
-	private DashboardOutput getDashboard() {
-		return ((DashboardLayerStatement) definition).getOutput();
-	}
+//	private DashboardOutput getDashboard() {
+//		return ((DashboardLayerStatement) definition).getOutput();
+//	}
 
 	@Override
 	public void privateDraw(final IScope scope, final IGraphics dg) {
-		dg.drawDashboard(getDashboard());
+//		dg.drawDashboard(getDashboard());
 	}
 
 }

@@ -22,16 +22,22 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
@@ -134,101 +140,169 @@ public abstract class LayeredDisplayView extends GamaViewPart
 
     @Override
     public void ownCreatePartControl(final Composite c) {
-	final Composite composite = new Composite(c, SWT.BORDER | SWT.RESIZE);
-	composite.setEnabled(false);
-	composite.setLayout(new FillLayout());
+    
+    	// SET LAYOUT FOR PARENT COMPOSITE
+    	c.setLayout(new RowLayout(SWT.HORIZONTAL));
+//    	c.setLayout(new FillLayout(SWT.HORIZONTAL));
+    	
+    	// BUTTON ADD PANE 300x200
+    	Button button = new Button(toolbar, SWT.PUSH);
+    	button.setText("Add Pane 300x200");
+    	button.addListener(SWT.Selection, new Listener() {
+  
+			@Override
+			public void handleEvent(Event event) {
+				createPane(c, 0);
+    	    	c.layout();
+			}
+    		
+    	});
+    	
+    	// BUTTON ADD PANE 200x250
+    	Button button2 = new Button(toolbar, SWT.PUSH);
+    	button2.setText("Add Pane 200x250");
+    	button2.addListener(SWT.Selection, new Listener() {
+    		  
+			@Override
+			public void handleEvent(Event event) {
+				createPane(c, 1);
+    	    	c.layout();
+			}
+    		
+    	});
+    	Button radioBtn = new Button(toolbar, SWT.RADIO);
+    	radioBtn.setText("Row Layout");
+    	radioBtn.addListener(SWT.Selection, new Listener() {
 
-	// final Composite comp = new Composite(c, SWT.NONE);
-	// comp.setLayout(emptyLayout());
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				c.setLayout(new RowLayout(SWT.HORIZONTAL));
+				c.layout();
+			}
+    		
+    	});
+    	Button radioBtn2 = new Button(toolbar, SWT.RADIO);
+    	radioBtn2.setText("Free Moving Layout");
+    	radioBtn2.addListener(SWT.Selection, new Listener() {
 
-	composite.pack();
-	composite.setLocation(10, 10);
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				c.setLayout(null);
+				c.layout();
+			}
+    		
+    	});
+    	
+    	// COMPONENT TEST
+    	final Composite composite = new Composite(c, SWT.BORDER | SWT.NONE);
+    	composite.setEnabled(false);
+    	composite.setBounds(0, 50,300, 200);
+    	composite.setLayout(new FillLayout());
+    	composite.setLayoutData(new RowData(500,300));
+    	createSurfaceComposite(composite);
+    	surfaceComposite.setLayoutData(fullData());
 
-	// if (getOutput() == null) { return; }
-	// c.setLayout(emptyLayout());
-	//
-	// // First create the sashform
-	//
-	// form = new SashForm(c, SWT.HORIZONTAL);
-	// form.setLayoutData(fullData());
-	// form.setBackground(IGamaColors.WHITE.color());
-	// form.setSashWidth(8);
-//	 decorator.createSidePanel(composite);
-	// final Composite centralPanel = new Composite(form,
-	// CORE_DISPLAY_BORDER.getValue() ? SWT.BORDER : SWT.NONE);
-	//
-	// centralPanel.setLayout(emptyLayout());
-	// setParentComposite(new Composite(centralPanel, SWT.NONE) {
-	//
-	// @Override
-	// public boolean setFocus() {
-	// // decorator.keyAndMouseListener.focusGained(null);
-	// return forceFocus();
-	// }
-	//
-	// });
-	//
-	// getParentComposite().setLayoutData(fullData());
-	// getParentComposite().setLayout(emptyLayout());
-	// createSurfaceComposite(getParentComposite());
-	createSurfaceComposite(composite);
-	surfaceComposite.setLayoutData(fullData());
+    	final Composite comp = new Composite(c, SWT.BORDER | SWT.RESIZE);
+    	comp.setEnabled(false);
+    	comp.setBounds(310,50, 200, 250);
+    	comp.setLayout(new FillLayout());
+    	comp.setLayoutData(new RowData(200,250));
 
-	final Composite comp = new Composite(c, SWT.BORDER | SWT.RESIZE);
-	comp.setEnabled(false);
-	comp.setLayout(new FillLayout());
-	Button button = new Button(comp, SWT.PUSH);
-	button.setText("Button");
-	comp.pack();
-	comp.setLocation(10, 100); 
+    	// MOUSE EVENT
+    	final Point[] offset = new Point[1];
+    	final Point[] offset1 = new Point[1];
+    	Listener listener = new Listener() {
+    	    public void handleEvent(Event event) {
+    		switch (event.type) {
+    		case SWT.MouseDown:
+    		    Rectangle rect = composite.getBounds();
+    		    if (rect.contains(event.x, event.y)) {
+    			Point pt1 = composite.toDisplay(0, 0);
+    			Point pt2 = c.toDisplay(event.x, event.y);
+    			offset[0] = new Point(pt2.x - pt1.x, pt2.y - pt1.y);
+    		    }
+    		    Rectangle rect1 = comp.getBounds();
+    		    if (rect1.contains(event.x, event.y)) {
+    			Point pt1 = comp.toDisplay(0, 0);
+    			Point pt2 = c.toDisplay(event.x, event.y);
+    			offset1[0] = new Point(pt2.x - pt1.x, pt2.y - pt1.y);
+    		    }
+    		    break;
+    		case SWT.MouseMove:
+    		    if (offset[0] != null) {
+    			Point pt = offset[0];
+    			composite.setLocation(event.x - pt.x, event.y - pt.y);
+    		    }
+    		    if (offset1[0] != null) {
+    			Point pt = offset1[0];
+    			comp.setLocation(event.x - pt.x, event.y - pt.y);
+    		    }
+    		    break;
+    		case SWT.MouseUp:
+    		    offset[0] = null;
+    		    offset1[0] = null;
+    		    break;
+    		}
+    	    }
+    	};
 
-	final Point[] offset = new Point[1];
-	final Point[] offset1 = new Point[1];
-	Listener listener = new Listener() {
-	    public void handleEvent(Event event) {
-		switch (event.type) {
-		case SWT.MouseDown:
-		    Rectangle rect = composite.getBounds();
-		    if (rect.contains(event.x, event.y)) {
-			Point pt1 = composite.toDisplay(0, 0);
-			Point pt2 = c.toDisplay(event.x, event.y);
-			offset[0] = new Point(pt2.x - pt1.x, pt2.y - pt1.y);
-		    }
-		    Rectangle rect1 = comp.getBounds();
-		    if (rect1.contains(event.x, event.y)) {
-			Point pt1 = comp.toDisplay(0, 0);
-			Point pt2 = c.toDisplay(event.x, event.y);
-			offset1[0] = new Point(pt2.x - pt1.x, pt2.y - pt1.y);
-		    }
-		    break;
-		case SWT.MouseMove:
-		    if (offset[0] != null) {
-			Point pt = offset[0];
-			composite.setLocation(event.x - pt.x, event.y - pt.y);
-		    }
-		    if (offset1[0] != null) {
-			Point pt = offset1[0];
-			comp.setLocation(event.x - pt.x, event.y - pt.y);
-		    }
-		    break;
-		case SWT.MouseUp:
-		    offset[0] = null;
-		    offset1[0] = null;
-		    break;
-		}
-	    }
-	};
+    	c.addListener(SWT.MouseDown, listener);
+    	c.addListener(SWT.MouseUp, listener);
+    	c.addListener(SWT.MouseMove, listener);
+    	getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
+    	// form.setMaximizedControl(centralPanel);
+    	// decorator.createDecorations(form);
+//    	decorator.createDecorations();
+    	c.layout();
 
-	c.addListener(SWT.MouseDown, listener);
-	c.addListener(SWT.MouseUp, listener);
-	c.addListener(SWT.MouseMove, listener);
+    }
+    
+    public void createPane(Composite c, int type) {
+    	// Parent Composite
+    	Composite pane = new Composite(c, SWT.BORDER);
+    	pane.setLayout(new RowLayout(SWT.VERTICAL));
+    	if(type == 1) {
+    		if(c.getLayout() == null) {
+    			pane.setBounds(100, 100, 200, 250);
+    		}else {
+        		pane.setLayoutData(new RowData(200,250));	
+    		}
+    	} else {
+    		if(c.getLayout() == null) {
+    			pane.setBounds(100, 100, 300, 200);
+    		}else {
+        		pane.setLayoutData(new RowData(300,200));	
+    		}
+    	}
+    	
+    	// Toolbar (sub-composite)
+    	Composite tbar = new Composite(pane, SWT.NONE);
+    	FillLayout f = new FillLayout();
+    	f.spacing = 10;
+    	f.marginHeight = 10;
+    	f.marginWidth = 10;
+    	tbar.setLayout(f);
+    	
+    	Button btn1 = new Button(tbar, SWT.PUSH);
+    	btn1.setText("Add");
+    	Button btn2 = new Button(tbar, SWT.PUSH);
+    	btn2.setText("Remove");
+    	btn2.addListener(SWT.Selection, new Listener() {
 
-	getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
-	// form.setMaximizedControl(centralPanel);
-	// decorator.createDecorations(form);
-//	decorator.createDecorations();
-	c.layout();
-
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				pane.dispose();
+				c.requestLayout();
+			}
+    		
+    	});
+    	
+    	// Content (sub-composite)
+    	Composite cont = new Composite(pane, SWT.NONE);
+    	cont.setLayout(new FillLayout());
     }
 
     GridLayout emptyLayout() {

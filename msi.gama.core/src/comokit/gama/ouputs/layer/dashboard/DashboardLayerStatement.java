@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.outputs.LayeredDisplayOutput;
 import msi.gama.outputs.LayoutStatement;
+import msi.gama.outputs.LayeredDisplayOutput.DisplaySerializer;
+import msi.gama.outputs.LayeredDisplayOutput.InfoValidator;
 import msi.gama.outputs.layers.AbstractLayerStatement;
 import msi.gama.outputs.layers.charts.ChartOutput;
 import msi.gama.precompiler.GamlAnnotations.doc;
@@ -23,6 +25,8 @@ import msi.gama.precompiler.IConcept;
 import msi.gama.precompiler.ISymbolKind;
 import msi.gaml.compilation.ISymbol;
 import msi.gaml.compilation.Symbol;
+import msi.gaml.compilation.annotations.serializer;
+import msi.gaml.compilation.annotations.validator;
 import msi.gaml.descriptions.IDescription;
 import msi.gaml.expressions.IExpression;
 import msi.gaml.operators.Cast;
@@ -31,11 +35,11 @@ import msi.gaml.types.IType;
 
 @symbol (
 		name = IKeyword.DASHBOARD,
-		kind = ISymbolKind.LAYER,
+		kind = ISymbolKind.OUTPUT,
 		with_sequence = true,
-		concept = { IConcept.DASHBOARD, IConcept.DISPLAY })
+		concept = { IConcept.DASHBOARD })
 @inside (
-		symbols = { IKeyword.DISPLAY })
+		symbols = { IKeyword.OUTPUT, IKeyword.PERMANENT })
 @facets (
 		value = {
 				@facet (
@@ -50,50 +54,15 @@ import msi.gaml.types.IType;
 					doc = @doc ("TEST"))
 		},
 		omissible = IKeyword.NAME)
-
+@validator (InfoValidator.class)
+@serializer (DisplaySerializer.class)
 @doc (value = "Represents the layout of the dashboard views of simulations and experiments")
 
-public class DashboardLayerStatement extends AbstractLayerStatement {
+public class DashboardLayerStatement extends LayeredDisplayOutput {
 
-	private DashboardOutput dashoutput = null;
-	
-	
-	public DashboardOutput getOutput() {
-		return dashoutput;
-	}
-	
-	public DashboardLayerStatement(IDescription desc) throws GamaRuntimeException {
+	public DashboardLayerStatement(IDescription desc) {
 		super(desc);
 		// TODO Auto-generated constructor stub
 	}
-
-	@Override
-	public LayerType getType(LayeredDisplayOutput output) {
-		// TODO Auto-generated method stub
-		return LayerType.DASHBOARD;
-	}
-
-	
-	@Override
-	protected boolean _init(final IScope scope) throws GamaRuntimeException {
-		// TODO Auto-generated method stub
-		IExpression string1 = getFacet(IKeyword.TYPE);
-		
-		dashoutput = DashboardJFreeOutput.createDashOutput(scope, getName(), string1);
-		dashoutput.createDash(scope);
-		
-		return true;
-	}
-
-	@Override
-	protected boolean _step(IScope scope) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	
-	
-	
-		
 
 }

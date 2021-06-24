@@ -21,12 +21,14 @@ experiment main type: gui {
 //		layout dashboard_type("operational");
 		
 		
-		display "test" {
+		dashboard "test" {
 			/**
 			 * Dashboard statement to show tool for creating dashboard in one display
 			 */
-			dashboard "dash" type:"strategic" {}
+//			dashboard "dash" type:"strategic" {}
+			chart "sdasd" type:bubble {}
 		}
+		
 				
 	}
 }
