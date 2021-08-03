@@ -23,8 +23,7 @@ global {
 		create people number: nb_people;
 		ask nb_infected_init among people {
 			is_infected <- true;
-		}	
-		
+		}
 	}
 	
 	// tham so theo doi
@@ -102,6 +101,7 @@ experiment main type: gui {
 				data "Case infected" value: people sum_of(each.case_infected);
 				data "Case recover" value: people sum_of(each.case_recover);
 			}
+			
 			
 		}
 	}
