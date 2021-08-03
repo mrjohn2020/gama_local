@@ -69,5 +69,17 @@ public class OpenGLDisplayView extends SWTDisplayView {
 		getDisplaySurface().renderer.getCanvas().invoke(false,
 				new GLDrawableUtil.ReshapeGLEventListener(getDisplaySurface().renderer, true));
 	}
+//new
+	@Override
+	protected Composite createNewSurface(Composite parent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+//new
+	@Override
+	protected Composite createNewSurfaceFromList(Composite parent, int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

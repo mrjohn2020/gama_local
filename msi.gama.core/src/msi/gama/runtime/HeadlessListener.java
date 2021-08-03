@@ -489,19 +489,5 @@ public class HeadlessListener implements IGui {
 		return false;
 	}
 
-	//new
-	@Override
-	public IDisplaySurface getDisplaySurfaceFor(DashboardLayerStatement output, Object... args) {
-		// TODO Auto-generated method stub
-		IDisplaySurface surface = null;
-		final IDisplayCreator creator = DISPLAYS.get("image");
-		if (creator != null) {
-			surface = creator.create(output);
-			surface.outputReloaded();
-		} else {
-			return new NullDisplaySurface();
-		}
-		return surface;
-	}
 
 }

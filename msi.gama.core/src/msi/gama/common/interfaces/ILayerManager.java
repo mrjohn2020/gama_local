@@ -80,4 +80,8 @@ public interface ILayerManager extends ItemList<ILayer>, IDisposable {
 
 	boolean hasMouseMenuEventLayer();
 
+	void enable(ILayer found);//new
+
+	void disable(ILayer found); //new
+
 }

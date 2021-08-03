@@ -12,6 +12,7 @@ package msi.gama.outputs;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Iterables;
@@ -276,11 +277,14 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	private final List<AbstractLayerStatement> layers;
 	protected IDisplaySurface surface;
 	private int index;
-
+	protected IDisplaySurface surface2; //new
 	final LayeredDisplayData data = new LayeredDisplayData();
 	// Specific to overlays
 	OverlayStatement overlayInfo;
 
+	//tao list surface
+	protected List<IDisplaySurface> surface_list;
+	
 	public static class DisplaySerializer extends SymbolSerializer<SymbolDescription> {
 
 		/**
@@ -396,7 +400,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 
 	public LayeredDisplayOutput(final IDescription desc) {
 		super(desc);
-
+//		IDescription desc2 = desc.copy(desc);//new
 		if (hasFacet(IKeyword.TYPE)) {
 			data.setDisplayType(getLiteral(IKeyword.TYPE));
 		}
@@ -428,8 +432,20 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		if (sync != null) {
 			setSynchronized(Cast.asBool(getScope(), sync.value(getScope())));
 		}
-
+		
+		int nb_layers = getLayers().size();
+		surface_list = new ArrayList<>(Arrays.asList(new IDisplaySurface[getLayers().size()]));
+		
+		
 		createSurface(getScope());
+//		createSurface2(getScope().copy("copy"));
+		
+		for(int i = 0; i < nb_layers; i++) {
+			IDisplaySurface surface_clone = null;
+			createSurfaceClone(getScope().copy("clone"), surface_list.get(i));
+			
+		}
+		
 		return true;
 	}
 
@@ -464,6 +480,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 			surface.dispose();
 		}
 		surface = null;
+		
 		getLayers().clear();
 		data.dispose();
 	}
@@ -473,6 +490,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 			surface.outputReloaded();
 			return;
 		}
+		
 		if (scope.getExperiment().isHeadless()) {
 			// If in headless mode, we need to get the 'image' surface
 			data.setDisplayType(IKeyword.IMAGE);
@@ -482,7 +500,42 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		}
 		surface = scope.getGui().getDisplaySurfaceFor(this);
 	}
-
+	//new
+	protected void createSurface2(final IScope scope) {
+		if (surface2 != null) {
+			surface2.outputReloaded();
+			return;
+		}
+		
+		if (scope.getExperiment().isHeadless()) {
+			// If in headless mode, we need to get the 'image' surface
+			data.setDisplayType(IKeyword.IMAGE);
+		} else if (data.isOpenGL()) {
+			// The surface will be crezated later
+			return;
+		}
+		surface2 = scope.getGui().getDisplaySurfaceFor(this);
+	}
+	//new
+		protected void createSurfaceClone(final IScope scope, IDisplaySurface s) {
+			if (s != null) {
+				s.outputReloaded();
+				return;
+			}
+			
+			if (scope.getExperiment().isHeadless()) {
+				// If in headless mode, we need to get the 'image' surface
+				data.setDisplayType(IKeyword.IMAGE);
+			} else if (data.isOpenGL()) {
+				// The surface will be crezated later
+				return;
+			}
+			s = scope.getGui().getDisplaySurfaceFor(this);
+			
+			s.getManager();
+		}
+	
+	
 	@Override
 	public String getViewId() {
 		if (data.isOpenGL2()) { return IGui.GL_LAYER_VIEW_ID2; }
@@ -491,9 +544,20 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	}
 
 	public IDisplaySurface getSurface() {
+		surface.getManager().disable(surface.getManager().getItems().get(0));// test
 		return surface;
 	}
-
+	//new
+	public IDisplaySurface getNewSurface() {
+		return surface2;
+	}
+	
+	//new
+	public List<IDisplaySurface> getListSurface() {
+		return surface_list;
+	}
+	
+	
 	@Override
 	public List<? extends ISymbol> getChildren() {
 		return getLayers();
@@ -514,11 +578,34 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	}
 
 	public void setSurface(final IDisplaySurface surface) {
-		this.surface = surface;
+		
+		//new
+		if(this.surface !=null) {
+			IDisplaySurface surface_temp = surface;
+			int index = 0;
+			while(index < surface_list.size()) {
+				if(surface_list.get(index) == null) {
+					surface_list.set(index, surface_temp);
+					index = surface_list.size() + 1;
+				}else {
+					index++;
+				}	
+			}
+		}
+		
+		if(this.surface == null) {
+			this.surface = surface;
+		}
+		
+		
+//		this.surface = surface; ko lam nhu vay vi se ko createSurface dc
+//		this.surface2 = surface;
+//		this.surface2 = surface;//new
 		if (surface == null) {
 			view = null;
 		}
 	}
+	
 
 	public BufferedImage getImage() {
 		return surface == null ? null : surface.getImage(surface.getWidth(), surface.getHeight());
@@ -585,6 +672,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		if (e == IExpressionFactory.FALSE_EXPR) { return false; }
 		return true;
 	}
-
+	
+	
 
 }

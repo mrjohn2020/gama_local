@@ -3,6 +3,7 @@ package comokit.gama.ouputs.layer.dashboard;
 import static msi.gama.common.interfaces.IKeyword.DASHBOARD;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.outputs.LayeredDisplayOutput;
@@ -59,10 +60,11 @@ import msi.gaml.types.IType;
 @doc (value = "Represents the layout of the dashboard views of simulations and experiments")
 
 public class DashboardLayerStatement extends LayeredDisplayOutput {
-
+	
 	public DashboardLayerStatement(IDescription desc) {
 		super(desc);
-		// TODO Auto-generated constructor stub
+		// TODO Auto-generated constructor stu
+		
 	}
 
 }

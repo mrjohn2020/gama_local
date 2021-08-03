@@ -158,14 +158,17 @@ public class LayerManager implements ILayerManager {
 		}
 		return result;
 	}
-
+	@Override //new
+	public
 	void enable(final ILayer found) {
 		found.enableOn(surface);
 		enabledLayers.add(found);
 		disabledLayers.remove(found);
 		Collections.sort(enabledLayers);
 	}
-
+	
+	@Override // new
+	public
 	void disable(final ILayer found) {
 		if (found != null) {
 			found.disableOn(surface);

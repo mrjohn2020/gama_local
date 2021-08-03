@@ -12,6 +12,7 @@ package ummisco.gama.ui.utils;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -255,7 +256,7 @@ public class SwtGui implements IGui {
 		IDisplaySurface surface = null;
 		final String keyword = output.getData().getDisplayType();
 		final DisplayDescription creator = DISPLAYS.get(keyword);
-		if (creator != null) {
+		if (creator != null) {		
 			surface = creator.create(output, args);
 			surface.outputReloaded();
 		} else {
@@ -675,26 +676,6 @@ public class SwtGui implements IGui {
 		return EventQueue.isDispatchThread() || Display.getCurrent() != null;
 	}
 
-	@Override
-	public IDisplaySurface getDisplaySurfaceFor(DashboardLayerStatement output, Object... args) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	//new
-//	@Override
-//	public IDisplaySurface getDisplaySurfaceFor(DashboardLayerStatement output, Object... args) {
-//		// TODO Auto-generated method stub
-//		IDisplaySurface surface = null;
-//		final String keyword = output.getData().getDisplayType();
-//		final DisplayDescription creator = DISPLAYS.get(keyword);
-//		if (creator != null) {
-//			surface = creator.create(output, args);
-//			surface.outputReloaded();
-//		} else {
-//			throw GamaRuntimeException.error("Display " + keyword + " is not defined anywhere.", output.getScope());
-//		}
-//		return surface;
-//	}
 
 }
