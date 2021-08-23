@@ -26,6 +26,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.renderer.DefaultPolarItemRenderer;
 import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 import org.jfree.data.xy.XYDataset;
@@ -142,6 +143,11 @@ public class ChartJFreeChartOutputPie extends ChartJFreeChartOutput {
 			((PiePlot) this.getJFChart().getPlot()).setSectionPaint(serieid, myserie.getMycolor());
 		}
 
+	}
+	
+	//new
+	public ArrayList<Dataset> getJfreedataset() {
+		return jfreedataset;
 	}
 
 	@Override

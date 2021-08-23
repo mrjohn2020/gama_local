@@ -16,9 +16,9 @@ import static msi.gama.common.preferences.GamaPreferences.Runtime.CORE_SYNC;
 
 import java.awt.Color;
 import java.awt.Frame;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
+
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -32,6 +32,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -55,7 +56,7 @@ import org.eclipse.ui.PartInitException;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 import org.eclipse.swt.widgets.Table;
@@ -64,14 +65,12 @@ import org.eclipse.swt.widgets.TableItem;
 
 import msi.gama.common.interfaces.IDisplaySurface;
 import msi.gama.common.interfaces.IGamaView;
-import msi.gama.common.interfaces.IGraphics;
 import msi.gama.common.interfaces.ILayerManager;
 import msi.gama.kernel.experiment.ITopLevelAgent;
 import msi.gama.outputs.IDisplayOutput;
 import msi.gama.outputs.LayeredDisplayOutput;
-import msi.gama.outputs.display.AWTDisplayGraphics;
-import msi.gama.outputs.layers.AbstractLayerStatement;
-import msi.gama.outputs.layers.charts.ChartJFreeChartOutputBubble;
+import msi.gama.outputs.layers.charts.ChartDataSet;
+import msi.gama.outputs.layers.charts.ChartOutput;
 import msi.gama.runtime.GAMA;
 import msi.gama.runtime.IScope;
 import ummisco.gama.ui.resources.GamaColors;
@@ -96,10 +95,15 @@ public abstract class LayeredDisplayView extends GamaViewPart
     // protected volatile boolean realized;
     Thread updateThread;
     private volatile boolean lockAcquired = false;
-    //new
-    public Composite surfaceComposite2;
+    
+    // List of surface composite
     public List<Composite> surfaceComposite_list = new ArrayList<Composite>();
- 
+   
+    public List<Composite> list_pane;
+    
+    public Combo comboToolbarResize;
+    public Combo comboToolbarDelete;
+    
     @Override 
     public void setIndex(final int index) {
 	realIndex = index;
@@ -168,87 +172,225 @@ public abstract class LayeredDisplayView extends GamaViewPart
     public Composite getSurfaceComposite() {
 	return surfaceComposite;
     }
+    
+    public void createView_old(final Composite c) {
+    	if (getOutput() == null) { return; }
+		c.setLayout(emptyLayout());
+
+		// First create the sashform
+
+		form = new SashForm(c, SWT.HORIZONTAL);
+		form.setLayoutData(fullData());
+		form.setBackground(IGamaColors.WHITE.color());
+		form.setSashWidth(8);
+		decorator.createSidePanel(form);
+		final Composite centralPanel = new Composite(form, CORE_DISPLAY_BORDER.getValue() ? SWT.BORDER : SWT.NONE);
+
+		centralPanel.setLayout(emptyLayout());
+		setParentComposite(new Composite(centralPanel, SWT.NONE) {
+
+			@Override
+			public boolean setFocus() {
+				// decorator.keyAndMouseListener.focusGained(null);
+				return forceFocus();
+			}
+
+		});
+
+		getParentComposite().setLayoutData(fullData());
+		getParentComposite().setLayout(emptyLayout());
+		createSurfaceComposite(getParentComposite());
+		surfaceComposite.setLayoutData(fullData());
+		getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
+		form.setMaximizedControl(centralPanel);
+		decorator.createDecorations(form);
+		c.layout();
+    }
 
     @Override
     public void ownCreatePartControl(final Composite c) {
     	
-    	// List pane
-    	final List<Composite> list = new ArrayList<Composite>();
+    	String view = getOutput().getViewType();
     	
-    	// SET LAYOUT FOR PARENT COMPOSITE
+    	if (view.equals("sashform")) {
+    		createView_old(c);
+    	} else 
+    	if (view.equals("dashboard")){
+    	
+		// set layout for parent composite
     	c.setLayout(new RowLayout(SWT.HORIZONTAL));
-		    
+    		
+    	// number surface created
+    	int nb_surface_init = 0;
+    	nb_surface_init = getOutput().getListSurface().size();
+    	
+    	// list Composite created
+    	list_pane = new ArrayList<>(Arrays.asList(new Composite[nb_surface_init]));
+    	   	
+    	// create toolbar
+    	createToolbarForParent(c);
+		
+    	// create main simulation
+    	final Composite simulate = new Composite(c, SWT.Resize | SWT.BORDER);
+    	simulate.setLayout(emptyLayout());
+    	simulate.setLayoutData(new RowData(400, 300));
+		
+    	form = new SashForm(simulate, SWT.HORIZONTAL);
+		form.setLayoutData(fullData());
+		form.setBackground(IGamaColors.BLACK.color());
+		form.setSashWidth(8);
+		decorator.createSidePanel(form);
+		final Composite centralPanel = new Composite(form, CORE_DISPLAY_BORDER.getValue() ? SWT.BORDER : SWT.NONE);
+
+		centralPanel.setLayout(emptyLayout());
+		setParentComposite(new Composite(centralPanel, SWT.NONE) {
+
+			@Override
+			public boolean setFocus() {
+				// decorator.keyAndMouseListener.focusGained(null);
+				return forceFocus();
+			}
+
+		});
+
+		getParentComposite().setLayoutData(fullData());
+		getParentComposite().setLayout(emptyLayout());
+		createSurfaceComposite(getParentComposite());
+		surfaceComposite.setLayoutData(fullData());
+		getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
+		form.setMaximizedControl(centralPanel);
+		decorator.createDecorations(form);
+    	   	
+    	for (int i = 0; i< nb_surface_init; i++) {
+    		
+    		final Composite p = new Composite(c, SWT.Resize | SWT.BORDER);
+    		p.setLayout(new FillLayout(SWT.VERTICAL));
+    		p.setLayoutData(new RowData(400, 300));
+		
+//    		createToolbarForPane(p);
+    		
+    		final Composite surface_comp = new Composite(p, SWT.RESIZE | SWT.BORDER);
+    		surface_comp.setLayout(new FillLayout());
+    		surface_comp.setLayoutData(new RowData(350, 250));
+    		surface_comp.setVisible(true);
+
+    		createNewSurfaceFromList(surface_comp, i);
+    		surfaceComposite_list.get(i).setLayoutData(fullData());
+    		list_pane.set(i, p);
+    		
+    	}
+    	
+    	updateListener(c);
+    
+    	getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
+    	c.layout();
+    	} else {
+    		return;
+    	}
+    }
+    
+    public void createToolbarForParent(Composite c) {
+    	final Composite ToolBar = new Composite(c, SWT.NONE);
+    	ToolBar.setLayout(new FillLayout(SWT.HORIZONTAL));
+    	ToolBar.setLayoutData(new RowData(1330,30));
+
     	// BUTTON ADD PANE 300x200
-    	Button button = new Button(toolbar, SWT.PUSH);
-    	button.setText("Add Pane 300x200");
+    	Button button = new Button(ToolBar, SWT.PUSH);
+    	button.setImage(getDefaultImage());
+    	button.setText("Add pane");
     	button.addListener(SWT.Selection, new Listener() {
   
 			@Override
 			public void handleEvent(Event event) {
-				createPane(c, list);
+				createPane(c);
 			}
     		
     	});
     	
-
+    	// BUTTON ENABLE PANE
+    	Button buttonSetEnable = new Button(ToolBar, SWT.CHECK);
+    	buttonSetEnable.setText("Move pane");
     	
-//    	// COMPONENT TEST
+    	buttonSetEnable.addSelectionListener(new SelectionAdapter() {
     	
-//    	final Composite composite = new Composite(c, SWT.BORDER | SWT.NONE);
-//    	composite.setEnabled(false);
-//    	composite.setBounds(0, 50,300, 200);
-//    	composite.setLayout(new FillLayout());
-//    	composite.setLayoutData(new RowData(500,300));
-//    	createSurfaceComposite(composite);
-//    	surfaceComposite.setLayoutData(fullData());
-    
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				if (buttonSetEnable.getSelection()) {
+					for (Composite pane : list_pane) {
+			    		pane.setEnabled(false);
+			    	}
+				} else {
+					for (Composite pane : list_pane) {
+			    		pane.setEnabled(true);
+			    	}
+				}
+			}
+    		
+    	});
     	
+    	// Combo delete pane
+    	comboToolbarDelete = new Combo(ToolBar, SWT.DROP_DOWN);
+    	String[] list_delete = new String[list_pane.size()];
+    	for (int i = 0; i < list_pane.size(); i++) {
+    		list_delete[i] = "Pane " + i;
+    	}
+    	comboToolbarDelete.setItems(list_delete);
+    	comboToolbarDelete.setText("Choos pane to delete");
     	
-//    	final Composite comp = new Composite(c, SWT.BORDER | SWT.RESIZE);
-//    	comp.setEnabled(false);
-//    	comp.setBounds(310,50, 200, 250);
-//    	comp.setLayout(new FillLayout());
-//    	comp.setLayoutData(new RowData(200,250));
-//    	comp.setVisible(true);
-////    	ToolBar t = new ToolBar(comp, SWT.NONE);
-////    	ToolItem itemBack = new ToolItem(t, SWT.PUSH);
-////	    itemBack.setText("Add");
-////	    ToolItem itemForward = new ToolItem(t, SWT.PUSH);
-////	    itemForward.setText("Delete");
-////	    ToolItem itemStop = new ToolItem(t, SWT.PUSH);
-////	    itemStop.setText("Zoom In");
-////	    ToolItem itemZoomOut = new ToolItem(t, SWT.PUSH);
-////	    itemZoomOut.setText("Zoom Out");
-//    	createNewSurface(comp);
-//    	surfaceComposite2.setLayoutData(fullData());
+    	comboToolbarDelete.addSelectionListener(new SelectionAdapter() {
+    		
+    		@Override
+    		public void widgetSelected(SelectionEvent e) {
+    			int idx = comboToolbarDelete.getSelectionIndex();
+    			list_pane.get(idx).dispose();
+    			list_pane.remove(idx);
+    			comboToolbarDelete.remove(idx);
+    			comboToolbarResize.remove(idx);
+    			list_pane.get(idx).requestLayout();
+    		}
+    	});
     	
+    	// Combo resize pane
+    	String[] list_resize = new String[list_pane.size()];
+    	for (int i = 0; i < list_pane.size(); i++) {
+    		list_resize[i] = "Pane " + i;
+    	}
     	
-    	//test
-    	int count_surface = getOutput().getLayers().size();
+    	comboToolbarResize = new Combo(ToolBar, SWT.DROP_DOWN);
+    	comboToolbarResize.setItems(list_resize);
+    	comboToolbarResize.setText("Choose pane to resize");
+		
+		// User select a item in the Combo.
+    	comboToolbarResize.addSelectionListener(new SelectionAdapter() {
+ 
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int idx = comboToolbarResize.getSelectionIndex();
+                String str = comboToolbarResize.getItem(idx);
+                Tracker tracker = new Tracker(list_pane.get(idx).getParent(), SWT.RESIZE);
+    	        tracker.setStippled(true);
+    	        Rectangle rect = list_pane.get(idx).getBounds();
+    	        tracker.setRectangles(new Rectangle[] { rect });
+    	        if (tracker.open()) {
+    	          Rectangle after = tracker.getRectangles()[0];
+    	          list_pane.get(idx).setBounds(after);
+    	        }
+    	        tracker.dispose();
+            }
+        });
+    }
+       
+    public void updateListener(Composite c) {
     	
-    	// List Composite created
-    	List<Composite> list_pane = new ArrayList<>(Arrays.asList(new Composite[count_surface]));
+    	int count = list_pane.size();
     	
     	// List Point
     	List<Point[]> list_point = new ArrayList<>();
-     	
-    	for (int i = 0; i< count_surface; i++) {
-    		final Composite surface_comp = new Composite(c, SWT.BORDER | SWT.RESIZE);
-    		surface_comp.setEnabled(false);
-    		surface_comp.setBounds(310,50, 200, 250);
-    		surface_comp.setLayout(new FillLayout());
-    		surface_comp.setLayoutData(new RowData(400,300));
-    		surface_comp.setVisible(true);
-     
-    		createNewSurfaceFromList(surface_comp, i);
-    		surfaceComposite_list.get(i).setLayoutData(fullData());
-    		list_pane.set(i, surface_comp);
-    		
+    	for (int i = 0; i < count; i++) {
     		final Point[] offset = new Point[1];
     		list_point.add(offset);
-    		
     	}
-    	    	
+    	
     	Listener listener = new Listener() {
 
 			@Override
@@ -256,7 +398,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 				
 				switch (event.type) {
 				case SWT.MouseDown:
-					for (int i = 0; i < count_surface; i++) {
+					for (int i = 0; i < count; i++) {
 						Rectangle rect = list_pane.get(i).getBounds();
 						if(rect.contains(event.x, event.y)) {
 							Point pt1 = list_pane.get(i).toDisplay(0, 0);
@@ -266,7 +408,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 					}
 					break;
 				case SWT.MouseMove:
-					for (int i = 0; i < count_surface; i++) {
+					for (int i = 0; i < count; i++) {
 						if (list_point.get(i)[0] != null) {
 							Point pt = list_point.get(i)[0];
 							list_pane.get(i).setLocation(event.x - pt.x,  event.y - pt.y);
@@ -274,101 +416,56 @@ public abstract class LayeredDisplayView extends GamaViewPart
 					}
 					break;
 				case SWT.MouseUp:
-					for (int i = 0; i < count_surface; i++) {
+					for (int i = 0; i < count; i++) {
 						list_point.get(i)[0] = null;
 					}
 					break;
-				case SWT.MouseWheel:
-					for (int i = 0; i < count_surface; i++) {
-						Tracker tracker = new Tracker(list_pane.get(i).getParent(), SWT.RESIZE);
-		    	        tracker.setStippled(true);
-		    	        Rectangle rect = list_pane.get(i).getBounds();
-		    	        tracker.setRectangles(new Rectangle[] { rect });
-		    	        if (tracker.open()) {
-		    	          Rectangle after = tracker.getRectangles()[0];
-		    	          list_pane.get(i).setBounds(after);
-		    	        }
-		    	        tracker.dispose();	
-					}
-	    			break;
 				}
 			}
     	};
     	
+    	// MOUSE EVENT
     	c.addListener(SWT.MouseDown, listener);
     	c.addListener(SWT.MouseUp, listener);
     	c.addListener(SWT.MouseMove, listener);
-//    	c.addListener(SWT.MouseWheel, listener);
     	
-    	// MOUSE EVENT
-    	  	
-//    	final Point[] offset = new Point[1];
-//    	final Point[] offset1 = new Point[1];
-//    	Listener listener = new Listener() {
-//    	    public void handleEvent(Event event) {
-//    		switch (event.type) {
-//    		case SWT.MouseDown:
-//    			Rectangle rect = comp.getBounds();
-//				if (rect.contains(event.x, event.y)) {
-//	    			Point pt1 = comp.toDisplay(0, 0);
-//	    			Point pt2 = c.toDisplay(event.x, event.y);
-//	    			offset[0] = new Point(pt2.x - pt1.x, pt2.y - pt1.y);
-//	    		}
-//    		    Rectangle rect1 = composite.getBounds();
-//    		    if (rect1.contains(event.x, event.y)) {
-//    			Point pt1 = composite.toDisplay(0, 0);
-//    			Point pt2 = c.toDisplay(event.x, event.y);
-//    			offset1[0] = new Point(pt2.x - pt1.x, pt2.y - pt1.y);
-//    		    }
-//    		    break;
-//    		case SWT.MouseMove:
-//    			if (offset[0] != null) {
-//	    			Point pt = offset[0];
-//	    			comp.setLocation(event.x - pt.x, event.y - pt.y);
-//	    		    }
-//    		    if (offset1[0] != null) {
-//    			Point pt = offset1[0];
-//    			composite.setLocation(event.x - pt.x, event.y - pt.y);
-//    		    }
-//    		    break;
-//    		case SWT.MouseUp:
-//    			offset[0] = null;
-//    		    offset1[0] = null;
-//    		    break;
-//    		case SWT.MouseWheel:
-//    			Tracker tracker = new Tracker(composite.getParent(), SWT.RESIZE);
-//    	        tracker.setStippled(true);
-//    	        Rectangle rect3 = composite.getBounds();
-//    	        tracker.setRectangles(new Rectangle[] { rect3 });
-//    	        if (tracker.open()) {
-//    	          Rectangle after = tracker.getRectangles()[0];
-//    	          composite.setBounds(after);
-//    	        }
-//    	        tracker.dispose();
-//    	        
-//    		}
-//    	    }
-//    	};
-//
-//    	c.addListener(SWT.MouseDown, listener);
-//    	c.addListener(SWT.MouseUp, listener);
-//    	c.addListener(SWT.MouseMove, listener);
-//    	c.addListener(SWT.MouseWheel, listener);
-    	getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
-    	// form.setMaximizedControl(centralPanel);
-    	// decorator.createDecorations(form);
-//    	decorator.createDecorations();
-    	c.layout();
-
     }
     
-    public void createPane(Composite c, List<Composite> l) {
+    public void createPane(Composite c) {
     	// Pane Composite
-    	Composite pane = new Composite(c, SWT.BORDER);
-    	pane.setLayout(new RowLayout(SWT.VERTICAL));
-    	pane.setLayoutData(new RowData(400, 50));
-    	l.add(pane);
+    	Composite pane = new Composite(c, SWT.NONE);
+    	pane.setLayout(new FillLayout(SWT.VERTICAL));
+    	pane.setLayoutData(new RowData(400, 300));
     	
+    	Button addBtn = new Button(pane, SWT.PUSH);
+    	addBtn.setImage(getDefaultImage());
+    	addBtn.addListener(SWT.Selection, new Listener() {
+  
+			@Override
+			public void handleEvent(Event event) {
+				ShowSelectionCombo(pane);
+				addBtn.dispose();
+	            pane.requestLayout();
+			}
+    		
+    	});
+    	
+    	list_pane.add(pane);
+    	comboToolbarResize.add("New Custom pane");
+    	comboToolbarDelete.add("New Custom pane");
+    	
+    	// Toolbar of Pane
+//    	createToolbarForPane(pane);
+    	
+    	// Update Listener
+    	updateListener(c);
+    	
+    	// Apply layout
+    	c.requestLayout();
+    	
+    }
+    
+    public void createToolbarForPane(Composite pane) {
     	// Toolbar of Pane
     	ToolBar t = new ToolBar(pane, SWT.NONE);
     	ToolItem itemBack = new ToolItem(t, SWT.PUSH);
@@ -381,6 +478,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	    itemZoomOut.setText("Zoom Out");
 	    ToolItem itemResize = new ToolItem(t, SWT.PUSH);
 	    itemResize.setText("Resize");
+	    
 	    
 	    // Event for toolbar
 	    Listener listener_toolbar = new Listener() {
@@ -396,7 +494,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	        else if (string.equals("Delete"))
 	        {
 	        	pane.dispose();
-	        	c.requestLayout();
+	        	pane.requestLayout();
 	        }
 	        else if (string.equals("Zoom In"))
 	        {
@@ -409,10 +507,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	        	pane.requestLayout();
 	        }
 	        else if (string.equals("Resize"))
-	        {
-//	        	pane.setLayoutData(new RowData(400,pane.getSize().y - 4));
-//	        	pane.requestLayout();
-	        	
+	        {	        	
 	        	Tracker tracker = new Tracker(pane.getParent(), SWT.RESIZE);
     	        tracker.setStippled(true);
     	        Rectangle rect = pane.getBounds();
@@ -432,10 +527,8 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	    itemStop.addListener(SWT.Selection, listener_toolbar);
     	itemZoomOut.addListener(SWT.Selection, listener_toolbar);	
     	itemResize.addListener(SWT.Selection, listener_toolbar);
-    	// Apply layout
-    	c.layout();
-    	
     }
+    
        
     // Event Add of Pane
     public void ShowSelectionCombo(Composite pane) {
@@ -451,14 +544,14 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	
     	Combo combo = new Combo(visual, SWT.NONE);
     	combo.setBounds(65, 7, 372, -89);
-		combo.setItems(new String[] {"Chart", "Map", "Table", "Text"});
+		combo.setItems(new String[] {"Chart", "Map", "Table", "Text", "MixComposite", "List"});
 		
 	
 		Button btnNewButton = new Button(visual, SWT.NONE);
 		btnNewButton.setBounds(23, 70, 80, 30);
 		btnNewButton.setText("OK");
 	
-		visual.layout();
+		visual.requestLayout();
 				
 		// User select a item in the Combo.
         combo.addSelectionListener(new SelectionAdapter() {
@@ -479,6 +572,8 @@ public abstract class LayeredDisplayView extends GamaViewPart
 				int idx = combo.getSelectionIndex();
 				String l = combo.getItem(idx);
 				String t = "";
+				int r = 1;
+				int c = 1;
 				if(visual.getChildren().length >= 4) {
 
 					Text value_of_metric = (Text) visual.getChildren()[4];
@@ -486,94 +581,139 @@ public abstract class LayeredDisplayView extends GamaViewPart
 					
 				}
 				
+				if(visual.getChildren().length == 7) {
+					Text nb_row = (Text) visual.getChildren()[4];
+					Text nb_col = (Text) visual.getChildren()[6];
+					
+					r = Integer.parseInt(nb_row.getText());
+					c = Integer.parseInt(nb_col.getText());
+				}
+
 				switch (event.type) {
 		        case SWT.Selection:
-		        	
-		        	switch(pane.getSize().y) {
-		        	case 54: 
-			        	{
-			        		pane.setLayoutData(new RowData(400, 300));
-				        	pane.requestLayout();
-				        	visual.dispose();
-				        	break;
-			        	}
-		        	case 304: 
-			        	{
-			        		pane.setLayoutData(new RowData(400, 600));
-				        	pane.requestLayout();
-				        	visual.dispose();
-				        	break;
-			        	}
-		        	case 604: 
-			        	{
-			        		pane.setLayoutData(new RowData(400, 900));
-				        	pane.requestLayout();
-				        	visual.dispose();
-				        	break;
-			        	}
-		        	}
+		        		        	
+		        	pane.requestLayout();
+		        	visual.dispose();
 		        	
 		        	// Xet Type de hien ra
-		        	Composite child_sub = new Composite(pane, SWT.NONE);
+		        	Composite child_sub = new Composite(pane, SWT.BORDER | SWT.EMBEDDED);
 		        	if(l.equals("Map")) {
 			        	child_sub.setLayout(new FillLayout());
 			        	child_sub.setLayoutData(new RowData(400 - 10, 300 - 30));
-//			        	surfaceComposite2.setParent(child_sub);
-//			        	surfaceComposite2.setLayoutData(fullData());
+			        	createSurfaceComposite(child_sub);
+			        	surfaceComposite.setLayoutData(fullData());
 		        	} else		        	
 		        	if(l.equals("Text")) {
-			        	child_sub.setLayout(null);
-			        	child_sub.setLayoutData(new RowData(400 - 10, 300 - 30));
+		        		pane.setLayoutData(new RowData(400, 130));
+			        	child_sub.setLayout(new FillLayout());
+//			        	child_sub.setLayoutData(new RowData(400 - 10, 300 - 30));
 			        	Label lab = new Label(child_sub, SWT.NONE);
-			        	lab.setBounds(30, 30, 200 , 200);
+			        	lab.setAlignment(SWT.CENTER);
+//			        	lab.setBounds(30, 30, 200 , 200);
 			        	lab.setText(t);
+			        	
 			        	FontDescriptor descriptor = FontDescriptor.createFrom(lab.getFont());
-			        	descriptor = descriptor.setStyle(SWT.BOLD);
-			        	descriptor = descriptor.setHeight(50);
+			        	descriptor = descriptor.setStyle(SWT.NORMAL);
+			        	descriptor = descriptor.setHeight(15);
 			        	lab.setFont(descriptor.createFont(lab.getDisplay()));
 			        	
 		        	} else
 		        	if(l.equals("Table")) {
+		        		
 		        		child_sub.setLayout(new FillLayout());
 		        		child_sub.setLayoutData(new RowData(400 - 10, 300 - 30));
-		        		
+
 		        		// table
-		        		Table tab = new Table(child_sub, SWT.FULL_SELECTION);
+		        		Table tab = new Table(child_sub, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER);
 		        		tab.setHeaderVisible(true);
 		        		tab.setLinesVisible(true);
-		        		
+		        		tab.getItemHeight();
 		        		// column
 		        		TableColumn tab_c1 = new TableColumn(tab, SWT.NONE);
 		        		tab_c1.setMoveable(true);
 		        		tab_c1.setWidth(100);
-		        		tab_c1.setText("Title 1");
+		        		tab_c1.setText("Cap Hanh Chinh");
+		        		tab_c1.setWidth(pane.getBounds().width / 3);
 		        		
 		        		TableColumn tab_c2 = new TableColumn(tab, SWT.NONE);
 		        		tab_c2.setMoveable(true);
 		        		tab_c2.setWidth(100);
-		        		tab_c2.setText("Title 2");
+		        		tab_c2.setText("Muc Nguy Co");
+		        		tab_c2.setWidth(pane.getBounds().width / 3);
 		        		
 		        		TableColumn tab_c3 = new TableColumn(tab, SWT.NONE);
 		        		tab_c3.setMoveable(true);
 		        		tab_c3.setWidth(100);
-		        		tab_c3.setText("Title 3");
+		        		tab_c3.setText("So Vung");
+		        		tab_c3.setWidth(pane.getBounds().width / 3);
 		        		
+		        		String[] caphanhchinh = {"Tinh/Thanh", "Tinh/Thanh", "Tinh/Thanh", "Quan/Huyen", "Quan/Huyen", "Quan/Huyen", "Xa/Phuong", "Xa/Phuong", "Xa/Phuong"  };
+		        		String[] mucnguyco = {"Nguy co rat cao", "Nguy co cao", "Nguy co", "Nguy co rat cao", "Nguy co cao", "Nguy co", "Nguy co rat cao", "Nguy co cao", "Nguy co" };
+		        		int[] sovung = {24, 13, 11, 173, 68, 166, 791, 1735, 61 };
+						
+		        		
+		        		for (int loopIndex = 0; loopIndex < 24; loopIndex++) {
+	        		      TableItem item = new TableItem(tab, SWT.NULL);
+	        		      item.setText("");
+	        		      item.setText(0, caphanhchinh[loopIndex]);
+	        		      item.setText(1, mucnguyco[loopIndex]);
+	        		      item.setText(2, String.valueOf(sovung[loopIndex]));
+	        		    }
+		        	
 		        	} else
 		        	if(l.equals("Chart")) {
-		        		child_sub.setLayout(null);
-			        	child_sub.setLayoutData(new RowData(400 - 10, 300 - 30));
+		        		child_sub.setLayout(new FillLayout());
+//			        	child_sub.setLayoutData(new RowData(400 - 10, 300 - 30));
 		        		Frame frame = SWT_AWT.new_Frame(child_sub);
 		        		DefaultPieDataset dataSet = new DefaultPieDataset();
+		        	
+		        		ChartDataSet a = getOutput().getLayers().get(2).getDataSet();//new
+		        		ChartOutput b = a.getOutput();
 	        	        dataSet.setValue("Chrome", 29);
 	        	        dataSet.setValue("InternetExplorer", 36);
 	        	        dataSet.setValue("Firefox", 35);
-		        		JFreeChart chart = ChartFactory.createPieChart3D("test", dataSet, true, true, false);
+		        		JFreeChart chart = ChartFactory.createRingChart("test", (DefaultPieDataset) b.getJfreedataset().get(0), true, true, false);
 		        		ChartPanel chartPanel = new ChartPanel(chart);
 		        		frame.add(chartPanel);
-		        		//not render
-		        	}
+		        		
+		        	} else 
+	        		if (l.equals("MixComposite")) {
+	        			
+	        			child_sub.setLayout(new FillLayout(SWT.VERTICAL));
+	        			for (int i = 0; i < r; i++) {
+	        				Composite CompositeRow = new Composite(child_sub, SWT.BORDER);
+	        				CompositeRow.setLayout(new FillLayout(SWT.HORIZONTAL));
+	        				for (int j = 0; j < c; j++) {
+	        					Composite CompositeColumn = new Composite(CompositeRow, SWT.BORDER);
+	        					CompositeColumn.setLayout(new FillLayout());
+	        					Button addComponentBtn = new Button(CompositeColumn, SWT.PUSH);
+	        					addComponentBtn.setText("Add");
+	        					
+	        					addComponentBtn.addListener(SWT.Selection, new Listener() {
+	        						  
+	        						@Override
+	        						public void handleEvent(Event event) {
+	        							ShowSelectionCombo(CompositeColumn);
+	        							addComponentBtn.dispose();
+	        							CompositeColumn.requestLayout();
+	        						}
+	        			    		
+	        			    	});
+	        					
+	        				}
+	        			}
+	        		} else
+	        		if (l.equals("List")) {
+	        			child_sub.setLayout(new FillLayout());
+	        			int res = Integer.parseInt(t);
+	        			list_pane.get(res).setParent(child_sub);
+	        			list_pane.remove(res);
+	        			comboToolbarDelete.remove(res);
+	        			comboToolbarResize.remove(res);
+	        		}
 		        	
-		        	child_sub.layout();
+		        	
+		        	child_sub.requestLayout();
 
 		        	break;
 		        }
@@ -595,7 +735,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	    		
 	    		Text text = new Text(visual, SWT.BORDER);
 	    		text.setBounds(65, 40, 200, 23);
-	    		visual.layout();
+	    		visual.requestLayout();
 	    		break;
 	    	}
     	case "Text":
@@ -606,9 +746,41 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	    		
 	    		Text text = new Text(visual, SWT.BORDER);
 	    		text.setBounds(65, 40, 200, 23);
-	    		visual.layout();
+	    		visual.requestLayout();
 	    		break;
 	    	}
+    	case "MixComposite":	
+	    	{
+	    		Label nb_row = new Label(visual, SWT.NONE);
+	    		nb_row.setBounds(23,  40, 36, 23);
+	    		nb_row.setText("Row");
+	    		
+	    		Text text_nb_row = new Text(visual, SWT.BORDER);
+	    		text_nb_row.setBounds(65, 40, 50, 23);
+	    		
+	    		Label nb_col = new Label(visual, SWT.NONE);
+	    		nb_col.setBounds(200,  40, 36, 23);
+	    		nb_col.setText("Col");
+	    	
+	    		Text text_nb_col = new Text(visual, SWT.BORDER);
+	    		text_nb_col.setBounds(242, 40, 50, 23);
+	    		
+	    		visual.requestLayout();
+	    		break;
+	    	}
+    	case "List": 
+	    	{
+	    		Label lblNewLabel_1 = new Label(visual, SWT.NONE);
+	    		lblNewLabel_1.setBounds(23, 40, 36, 23);
+	    		lblNewLabel_1.setText("Surface");
+	    		
+	    		Text text = new Text(visual, SWT.BORDER);
+	    		text.setBounds(65, 40, 200, 23);
+	    		visual.requestLayout();
+	    		break;
+	    	}
+	    	
+	    	
     	}
     }
     
@@ -636,7 +808,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
     }
 
     protected abstract Composite createSurfaceComposite(Composite parent);
-    protected abstract Composite createNewSurface(Composite parent);
     protected abstract Composite createNewSurfaceFromList(Composite parent, int i);
     @Override
     public LayeredDisplayOutput getOutput() {
@@ -757,12 +928,12 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	    output.setSynchronized(false);
 	}
 	
-	final List<IDisplaySurface> listSur = getOutput().getListSurface();
 	
 	// end fix
 	if (updateThread == null) {
 	    updateThread = new Thread(() -> {
-
+	    	final IDisplaySurface s = getDisplaySurface();
+	    	final List<IDisplaySurface> listSur = getOutput().getListSurface();
 	    	while (!disposed) {
 
 				for(int i = 0; i < listSur.size(); i++) {
@@ -781,7 +952,21 @@ public abstract class LayeredDisplayView extends GamaViewPart
 						}
 					}
 				}
-	
+				
+				if (s != null && s.isRealized() && !s.isDisposed() && !disposed) {
+					acquireLock();
+					s.updateDisplay(false);
+					if (s.getData().isAutosave()) {
+						SnapshotMaker.getInstance().doSnapshot(output, s, surfaceComposite);
+					}
+					// Fix for issue #1693
+					if (output.isInInitPhase()) {
+						output.setInInitPhase(false);
+						output.setSynchronized(oldSync);
+						// end fix
+					}
+
+				}
 			    
 			}
 	    });
@@ -789,14 +974,15 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	}
 
 	if (output.isSynchronized()) {
+		final IDisplaySurface s = getDisplaySurface();
+		final List<IDisplaySurface> listSur = getOutput().getListSurface();
 		
 		for (int i = 0; i < listSur.size(); i++) {
 			listSur.get(i).updateDisplay(false);
 			
 			if(getOutput().getData().isAutosave() && listSur.get(i).isRealized()) {
-				SnapshotMaker.getInstance().doSnapshot(output, listSur.get(i), surfaceComposite_list.get(i));
+				SnapshotMaker.getInstance().doSnapshot(output, listSur.get(i), surfaceComposite_list.get(i));	
 			}
-			
 			while (!listSur.get(i).isRendered() && !listSur.get(i).isDisposed() && !disposed) {
 				try {
 					Thread.sleep(10);
@@ -804,7 +990,21 @@ public abstract class LayeredDisplayView extends GamaViewPart
 					e.printStackTrace();
 				}
 			}
-		}    
+		}   
+		
+		s.updateDisplay(false);
+		if (getOutput().getData().isAutosave() && s.isRealized()) {
+			SnapshotMaker.getInstance().doSnapshot(output, s, surfaceComposite);
+		}
+		while (!s.isRendered() && !s.isDisposed() && !disposed) {
+			try {
+				Thread.sleep(10);
+			} catch (final InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		}
+		
 	} else if (updateThread.isAlive()) {
 	    releaseLock();
 	}

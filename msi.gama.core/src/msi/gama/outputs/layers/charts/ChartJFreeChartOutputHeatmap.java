@@ -39,6 +39,7 @@ import org.jfree.chart.title.PaintScaleLegend;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.PieDataset;
 import org.jfree.data.xy.MatrixSeries;
 import org.jfree.data.xy.MatrixSeriesCollection;
@@ -596,6 +597,12 @@ public class ChartJFreeChartOutputHeatmap extends ChartJFreeChartOutput {
 			sb.append(title).append(" ").append(xInt ? (int) xx : String.format("%.2f", xx));
 			return;
 		}
+	}
+
+	@Override
+	public ArrayList<Dataset> getJfreedataset() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

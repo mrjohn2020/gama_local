@@ -46,6 +46,7 @@ import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.renderer.xy.XYStepRenderer;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.PieDataset;
 import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
 import org.jfree.data.xy.XYDataset;
@@ -812,6 +813,12 @@ public class ChartJFreeChartOutputScatter extends ChartJFreeChartOutput {
 			sb.append(title).append(" ").append(xInt ? (int) xx : String.format("%.2f", xx));
 			return;
 		}
+	}
+
+	@Override
+	public ArrayList<Dataset> getJfreedataset() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -24,6 +24,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.renderer.DefaultPolarItemRenderer;
 import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.DefaultValueDataset;
 import org.jfree.data.general.PieDataset;
@@ -118,6 +119,12 @@ public class ChartJFreeOChartOutputGauge extends ChartJFreeChartOutput{
 	@Override
 	protected void initRenderer(final IScope scope) {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public ArrayList<Dataset> getJfreedataset() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

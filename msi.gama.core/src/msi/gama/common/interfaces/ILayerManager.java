@@ -84,4 +84,7 @@ public interface ILayerManager extends ItemList<ILayer>, IDisposable {
 
 	void disable(ILayer found); //new
 
+	void setNullOverLayer(); // new
+	
+
 }

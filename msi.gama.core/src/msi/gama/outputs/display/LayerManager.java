@@ -176,6 +176,11 @@ public class LayerManager implements ILayerManager {
 			disabledLayers.add(found);
 		}
 	}
+	
+	@Override //new
+	public void setNullOverLayer() {
+		overlay = null;
+	}
 
 	@Override
 	public void drawLayersOn(final IGraphics g) {
@@ -209,6 +214,7 @@ public class LayerManager implements ILayerManager {
 		Collections.sort(items);
 		return items;
 	}
+
 
 	@Override
 	public void removeItem(final ILayer found) {

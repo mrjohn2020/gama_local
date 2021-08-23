@@ -76,5 +76,11 @@ public class ChartJFreeChartOutputBubble extends ChartJFreeChartOutput{
 			chartdataset.setByCategory(true);
 		}
 	}
+
+	@Override
+	public ArrayList<Dataset> getJfreedataset() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

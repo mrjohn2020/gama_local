@@ -421,7 +421,8 @@ public class ChartLayerStatement extends AbstractLayerStatement {
 		// should be changed, used in LayerSideControls to open an editor...
 		return getDataSet().getOutput().getJFChart();
 	}
-
+//new
+	@Override
 	public ChartDataSet getDataSet() {
 		return chartdataset;
 	}

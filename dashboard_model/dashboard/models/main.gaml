@@ -24,6 +24,8 @@ global {
 		ask nb_infected_init among people {
 			is_infected <- true;
 		}
+		
+		create people2 number: 40;
 	}
 	
 	// tham so theo doi
@@ -82,14 +84,28 @@ species people skills:[moving]{
 }
 
 
+species people2 skills:[moving]{
+	
+	
+	reflex move {
+		do wander;
+	}
+	
+	aspect base {
+		draw square(20) color: #black;
+	}
+}
+
 
 experiment main type: gui {
 	parameter "Number people infected at itnit:" var: nb_infected_init min: 2 max: 100;
 	
 	output {
-		display "main" {
+		display "main" view: "dashboard" {
 			
 			species people aspect:base;
+			
+			species people2 aspect:base;
 			
 			chart "People" type: pie {
 				data "People is infected" value: total_people_isInfected color: #red;
@@ -101,6 +117,15 @@ experiment main type: gui {
 				data "Case infected" value: people sum_of(each.case_infected);
 				data "Case recover" value: people sum_of(each.case_recover);
 			}
+			
+//			graphics "new Point " {
+//				
+//					//Draw the function as a line
+//					draw circle(10.0);
+//					draw square(10.0);
+//				
+//				
+//			}
 			
 			
 		}

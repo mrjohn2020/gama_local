@@ -16,6 +16,7 @@ import msi.gama.common.interfaces.IKeyword;
 import msi.gama.outputs.IDisplayOutput;
 import msi.gama.outputs.LayeredDisplayData;
 import msi.gama.outputs.LayeredDisplayOutput;
+import msi.gama.outputs.layers.charts.ChartDataSet;
 import msi.gama.precompiler.GamlAnnotations.inside;
 import msi.gama.runtime.IScope;
 import msi.gama.runtime.exceptions.GamaRuntimeException;
@@ -89,5 +90,10 @@ public abstract class AbstractLayerStatement extends Symbol implements ILayerSta
 
 	@Override
 	public void setChildren(final Iterable<? extends ISymbol> children) {}
+
+	public ChartDataSet getDataSet() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

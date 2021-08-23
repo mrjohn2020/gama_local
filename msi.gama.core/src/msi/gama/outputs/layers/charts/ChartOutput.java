@@ -16,9 +16,11 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.general.Dataset;
 
 import msi.gama.common.interfaces.IDisplaySurface;
 import msi.gama.common.interfaces.IKeyword;
@@ -626,5 +628,7 @@ public abstract class ChartOutput {
 	}
 
 	public void dispose(final IScope scope) {}
+
+	public abstract ArrayList<Dataset> getJfreedataset();//new
 
 }

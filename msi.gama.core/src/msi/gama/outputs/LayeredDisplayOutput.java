@@ -29,6 +29,7 @@ import msi.gama.outputs.layers.AbstractLayerStatement;
 import msi.gama.outputs.layers.ILayerStatement;
 import msi.gama.outputs.layers.OverlayStatement;
 import msi.gama.outputs.layers.OverlayStatement.OverlayInfo;
+import msi.gama.outputs.layers.charts.ChartDataSet;
 import msi.gama.precompiler.GamlAnnotations.doc;
 import msi.gama.precompiler.GamlAnnotations.example;
 import msi.gama.precompiler.GamlAnnotations.facet;
@@ -245,8 +246,17 @@ import msi.gaml.types.IType;
 						name = IKeyword.AUTOSAVE,
 						type = { IType.BOOL, IType.POINT },
 						optional = true,
-						doc = @doc ("Allows to save this display on disk. A value of true/false will save it at a resolution of 500x500. A point can be passed to personalize these dimensions. Note that setting autosave to true (or to any other value than false) in a display will synchronize all the displays defined in the experiment")), },
+						doc = @doc ("Allows to save this display on disk. A value of true/false will save it at a resolution of 500x500. A point can be passed to personalize these dimensions. Note that setting autosave to true (or to any other value than false) in a display will synchronize all the displays defined in the experiment")),
+				// new facet
+				@facet (
+						name = "view",
+						type = IType.STRING,
+						optional = true,
+						doc = @doc ("New view type dahboard")
+						)
+		},
 		omissible = IKeyword.NAME)
+			
 @inside (
 		symbols = { IKeyword.OUTPUT, IKeyword.PERMANENT })
 @validator (InfoValidator.class)
@@ -277,7 +287,10 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	private final List<AbstractLayerStatement> layers;
 	protected IDisplaySurface surface;
 	private int index;
-	protected IDisplaySurface surface2; //new
+	// view
+	private String view_type = "sashform";
+	private ChartDataSet dataChart;//new
+	
 	final LayeredDisplayData data = new LayeredDisplayData();
 	// Specific to overlays
 	OverlayStatement overlayInfo;
@@ -422,7 +435,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		final boolean result = super.init(scope);
 		if (!result) { return false; }
 		data.initWith(getScope(), description);
-
+		
 		for (final ILayerStatement layer : getLayers()) {
 			layer.setDisplayOutput(this);
 			if (!getScope().init(layer).passed()) { return false; }
@@ -434,16 +447,19 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		}
 		
 		int nb_layers = getLayers().size();
-		surface_list = new ArrayList<>(Arrays.asList(new IDisplaySurface[getLayers().size()]));
-		
+		int nb_layers_overlay = 0;
+		for(AbstractLayerStatement l : getLayers()) {
+			if (l.getKeyword().equals("overlay")) {
+				nb_layers_overlay++;
+			}
+		}
+		dataChart = getLayers().get(2).getDataSet(); // example
+		surface_list = new ArrayList<>(Arrays.asList(new IDisplaySurface[getLayers().size() - nb_layers_overlay]));
 		
 		createSurface(getScope());
-//		createSurface2(getScope().copy("copy"));
 		
-		for(int i = 0; i < nb_layers; i++) {
-			IDisplaySurface surface_clone = null;
+		for(int i = 0; i < nb_layers - nb_layers_overlay; i++) {
 			createSurfaceClone(getScope().copy("clone"), surface_list.get(i));
-			
 		}
 		
 		return true;
@@ -500,10 +516,11 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		}
 		surface = scope.getGui().getDisplaySurfaceFor(this);
 	}
-	//new
-	protected void createSurface2(final IScope scope) {
-		if (surface2 != null) {
-			surface2.outputReloaded();
+	
+	// Create an copy surface
+	protected void createSurfaceClone(final IScope scope, IDisplaySurface s) {
+		if (s != null) {
+			s.outputReloaded();
 			return;
 		}
 		
@@ -514,26 +531,9 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 			// The surface will be crezated later
 			return;
 		}
-		surface2 = scope.getGui().getDisplaySurfaceFor(this);
+		s = scope.getGui().getDisplaySurfaceFor(this);
+		
 	}
-	//new
-		protected void createSurfaceClone(final IScope scope, IDisplaySurface s) {
-			if (s != null) {
-				s.outputReloaded();
-				return;
-			}
-			
-			if (scope.getExperiment().isHeadless()) {
-				// If in headless mode, we need to get the 'image' surface
-				data.setDisplayType(IKeyword.IMAGE);
-			} else if (data.isOpenGL()) {
-				// The surface will be crezated later
-				return;
-			}
-			s = scope.getGui().getDisplaySurfaceFor(this);
-			
-			s.getManager();
-		}
 	
 	
 	@Override
@@ -544,15 +544,10 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	}
 
 	public IDisplaySurface getSurface() {
-		surface.getManager().disable(surface.getManager().getItems().get(0));// test
 		return surface;
 	}
-	//new
-	public IDisplaySurface getNewSurface() {
-		return surface2;
-	}
 	
-	//new
+	// Get list surface
 	public List<IDisplaySurface> getListSurface() {
 		return surface_list;
 	}
@@ -579,7 +574,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 
 	public void setSurface(final IDisplaySurface surface) {
 		
-		//new
+		// Set surface
 		if(this.surface !=null) {
 			IDisplaySurface surface_temp = surface;
 			int index = 0;
@@ -596,11 +591,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		if(this.surface == null) {
 			this.surface = surface;
 		}
-		
-		
-//		this.surface = surface; ko lam nhu vay vi se ko createSurface dc
-//		this.surface2 = surface;
-//		this.surface2 = surface;//new
+
 		if (surface == null) {
 			view = null;
 		}
@@ -673,6 +664,11 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		return true;
 	}
 	
-	
+	public String getViewType() {
+		if(getFacet("view") == null) return view_type; 
+		view_type = getFacet("view").toString();
+		return view_type;
+		
+	}
 
 }

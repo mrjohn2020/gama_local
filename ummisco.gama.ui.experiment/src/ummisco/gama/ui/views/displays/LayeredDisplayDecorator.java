@@ -212,7 +212,7 @@ public class LayeredDisplayDecorator implements DisplayDataListener {
 		// sidePanel.setBackground(IGamaColors.WHITE.color());
 	}
 
-	public void createDecorations( ) {
+	public void createDecorations(final SashForm form) {
 		final LayerSideControls side = new LayerSideControls();
 		side.fill(sidePanel, view);
 		createOverlay();

@@ -294,4 +294,10 @@ public class ChartJFreeChartOutputRadar extends ChartJFreeChartOutput {
 
 	}
 
+	@Override
+	public ArrayList<Dataset> getJfreedataset() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

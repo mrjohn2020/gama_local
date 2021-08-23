@@ -11,11 +11,17 @@
  **********************************************************************************************/
 package ummisco.gama.java2d;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import msi.gama.common.interfaces.IDisplaySurface;
+import msi.gama.common.interfaces.ILayer;
 import msi.gama.outputs.LayeredDisplayOutput;
+import msi.gama.outputs.layers.ILayerStatement;
+import msi.gaml.descriptions.IDescription;
 import ummisco.gama.java2d.swing.SwingControl;
 import ummisco.gama.ui.views.WorkaroundForIssue1353;
 import ummisco.gama.ui.views.displays.LayeredDisplayView;
@@ -28,63 +34,56 @@ public class AWTDisplayView extends LayeredDisplayView {
 	protected Composite createSurfaceComposite(final Composite parent) {
 
 		if (getOutput() == null) { return null; }
-
+		
+		IDisplaySurface surface_without_chart = getDisplaySurface();
+		if (getOutput().getViewType().equals("dashboard")) {
+			int count_layer = surface_without_chart.getManager().getItems().size();
+			for (int i = count_layer - 1; i >= 0; i--){
+				if (surface_without_chart.getManager().getItems().get(i).getDefinition().getKeyword().equals("chart")) {
+					surface_without_chart.getManager().disable(surface_without_chart.getManager().getItems().get(i));
+				}
+			}
+		}
 		surfaceComposite = new SwingControl(parent, SWT.NO_FOCUS) {
 
 			@Override
 			protected Java2DDisplaySurface createSwingComponent() {
-				return (Java2DDisplaySurface) getDisplaySurface();
+				return (Java2DDisplaySurface) surface_without_chart;
 			}
 
 		};
 		surfaceComposite.setEnabled(false);
-		WorkaroundForIssue1594.installOn(this, parent, surfaceComposite, (Java2DDisplaySurface) getDisplaySurface());
+		WorkaroundForIssue1594.installOn(this, parent, surfaceComposite, (Java2DDisplaySurface) surface_without_chart);
 		WorkaroundForIssue2745.installOn(this);
 		WorkaroundForIssue1353.install();
 		return surfaceComposite;
 	}
 	
 	
-	protected Composite createNewSurface(final Composite parent) {
-		if (getOutput() == null) { return null; }
-		
-		surfaceComposite2 = new SwingControl(parent, SWT.NO_FOCUS) {
-
-			@Override
-			protected Java2DDisplaySurface createSwingComponent() {
-				// TODO Auto-generated method stub
-//				IDisplaySurface testSurface = getOutput().getNewSurface();
-				LayeredDisplayOutput a = getOutput();
-				IDisplaySurface testSurface = a.getNewSurface();
-				testSurface.getManager().disable(testSurface.getManager().getItems().get(1));
-//				testSurface.getManager().removeItem(testSurface.getManager().getItems().get(0));// xoa mot cai surface di
-				
-				return (Java2DDisplaySurface) testSurface;
-			}
-			
-		};
-		return surfaceComposite2;
-	}
-	
 	protected Composite createNewSurfaceFromList(final Composite parent, int i) {
 		if (getOutput() == null) { return null; }
 		
 		final Composite s;
+		LayeredDisplayOutput o = getOutput();
+		IDisplaySurface surface = o.getListSurface().get(i); 
+		
 		s = new SwingControl(parent, SWT.NO_FOCUS) {
 			
 			@Override
 			protected Java2DDisplaySurface createSwingComponent() {
-				LayeredDisplayOutput a = getOutput();
-				IDisplaySurface surface = a.getListSurface().get(i);
-				for(int j = 0; j < surface.getManager().getItems().size(); j++) {
-					if(j != i)
+								
+				int nb_layer = surface.getManager().getItems().size();
+				for(int j = nb_layer - 1; j >= 0; j--) {
+					if(j != i ) {
 						surface.getManager().disable(surface.getManager().getItems().get(j));
+						surface.getManager().setNullOverLayer();
+					}
 				}
-				
+
 				return (Java2DDisplaySurface) surface;
-				
 			}
 		};
+		s.setEnabled(false);
 		surfaceComposite_list.add(s);
 		return surfaceComposite_list.get(i);
 		
