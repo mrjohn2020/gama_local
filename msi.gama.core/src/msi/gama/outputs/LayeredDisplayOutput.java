@@ -23,6 +23,7 @@ import msi.gama.common.interfaces.IGui;
 import msi.gama.common.interfaces.IKeyword;
 import msi.gama.common.interfaces.IOverlayProvider;
 import msi.gama.common.preferences.GamaPreferences;
+import msi.gama.metamodel.agent.IAgent;
 import msi.gama.outputs.LayeredDisplayOutput.DisplaySerializer;
 import msi.gama.outputs.LayeredDisplayOutput.InfoValidator;
 import msi.gama.outputs.layers.AbstractLayerStatement;
@@ -298,6 +299,9 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	//tao list surface
 	protected List<IDisplaySurface> surface_list;
 	
+	// Agent Simulation
+	private IAgent simulation;
+	
 	public static class DisplaySerializer extends SymbolSerializer<SymbolDescription> {
 
 		/**
@@ -413,7 +417,7 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 
 	public LayeredDisplayOutput(final IDescription desc) {
 		super(desc);
-//		IDescription desc2 = desc.copy(desc);//new
+
 		if (hasFacet(IKeyword.TYPE)) {
 			data.setDisplayType(getLiteral(IKeyword.TYPE));
 		}
@@ -669,6 +673,11 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		view_type = getFacet("view").toString();
 		return view_type;
 		
+	}
+	
+	public IAgent getAgent() {
+		simulation = getScope().getAgent();
+		return simulation;
 	}
 
 }

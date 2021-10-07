@@ -67,19 +67,20 @@ public class AWTDisplayView extends LayeredDisplayView {
 		LayeredDisplayOutput o = getOutput();
 		IDisplaySurface surface = o.getListSurface().get(i); 
 		
+		int nb_layer = surface.getManager().getItems().size();
+		for(int j = nb_layer - 1; j >= 0; j--) {
+			if(j != i ) {
+				surface.getManager().disable(surface.getManager().getItems().get(j));
+				surface.getManager().setNullOverLayer();
+			}
+		}
+		String t = (surface.getManager().getItems().get(i).getDefinition().getKeyword() + " : " + surface.getManager().getItems().get(i).getDefinition().getName());
+		listNamePane.add(t);
+		
 		s = new SwingControl(parent, SWT.NO_FOCUS) {
 			
 			@Override
 			protected Java2DDisplaySurface createSwingComponent() {
-								
-				int nb_layer = surface.getManager().getItems().size();
-				for(int j = nb_layer - 1; j >= 0; j--) {
-					if(j != i ) {
-						surface.getManager().disable(surface.getManager().getItems().get(j));
-						surface.getManager().setNullOverLayer();
-					}
-				}
-
 				return (Java2DDisplaySurface) surface;
 			}
 		};

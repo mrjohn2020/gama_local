@@ -32,7 +32,7 @@ global {
 	int total_people <- nb_people update: people count(true);
 	int total_people_isInfected <- nb_infected_init update: people count(each.is_infected);
 	int total_people_notInfected <- nb_people - nb_infected_init update: people count(!each.is_infected);
-	
+//	int total_people_recovered <- 3;
 }
 
 
@@ -101,7 +101,8 @@ experiment main type: gui {
 	parameter "Number people infected at itnit:" var: nb_infected_init min: 2 max: 100;
 	
 	output {
-		display "main" view: "dashboard" {
+		
+		display "main" view: "dashboard"{
 			
 			species people aspect:base;
 			
@@ -117,6 +118,9 @@ experiment main type: gui {
 				data "Case infected" value: people sum_of(each.case_infected);
 				data "Case recover" value: people sum_of(each.case_recover);
 			}
+			
+			
+		
 			
 //			graphics "new Point " {
 //				
