@@ -59,7 +59,7 @@ public class AWTDisplayView extends LayeredDisplayView {
 		return surfaceComposite;
 	}
 	
-	
+	@Override
 	protected Composite createNewSurfaceFromList(final Composite parent, int i) {
 		if (getOutput() == null) { return null; }
 		

@@ -129,14 +129,10 @@ public abstract class LayeredDisplayView extends GamaViewPart
     public List<Composite> surfaceComposite_list = new ArrayList<Composite>();
     public Hashtable<Composite, String> paneManager;
     public List<String> listNamePane;
-    public List<Composite> list_pane;
-    
-    public Combo comboToolbarResize;
-    public Combo comboToolbarDelete;
-    
-    //
+       
     public IAgent agentSimulate;
     public Integer temp;
+    
     @Override 
     public void setIndex(final int index) {
 	realIndex = index;
@@ -211,7 +207,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
 		c.setLayout(emptyLayout());
 
 		// First create the sashform
-
 		form = new SashForm(c, SWT.HORIZONTAL);
 		form.setLayoutData(fullData());
 		form.setBackground(IGamaColors.WHITE.color());
@@ -239,7 +234,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 		decorator.createDecorations(form);
 		c.layout();
     }
-
+   
     @Override
     public void ownCreatePartControl(final Composite c) {
     	
@@ -250,35 +245,35 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	} else 
     	if (view.equals("dashboard")){
     	
-		// set layout for parent composite
+		// Set layout
     	c.setLayout(new RowLayout(SWT.HORIZONTAL));
     	
-    	// number surface created
+    	// Number surface created
     	int nb_surface_init = 0;
     	nb_surface_init = getOutput().getListSurface().size();
     	
-    	// list Composite created
+    	// List Composite created
     	paneManager = new Hashtable<Composite, String>();
     	listNamePane = new ArrayList<>();
     	   	   	
-    	// create toolbar
+    	// Create toolbar
     	createToolbarForParent(c);
 		
-    	// create main simulation
+    	// Create main simulation
     	final Composite simulate = new Composite(c, SWT.Resize | SWT.BORDER);
-    	simulate.setLayout(emptyLayout());
+    	simulate.setLayout(new FillLayout());
     	simulate.setLayoutData(new RowData(400, 300));
     	createView_old(simulate);
     	paneManager.put(simulate, "main");
-    	
+    	    	
     	for (int i = 0; i< nb_surface_init; i++) {
     		
     		final Composite p = new Composite(c, SWT.Resize | SWT.BORDER);
     		p.setSize(400, 300);
-    		p.setLayout(new RowLayout(SWT.VERTICAL));
+    		p.setLayout(new FillLayout(SWT.VERTICAL));
     		p.setLayoutData(new RowData(400, 300));
 		
-    		createToolbarForPane(p);
+//    		createToolbarForPane(p);
     		
     		final Composite surface_comp = new Composite(p, SWT.RESIZE | SWT.NONE);
     		surface_comp.setLayout(new FillLayout());
@@ -293,7 +288,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	
     	updateListener(c);
     	
-    	
     	getOutput().setSynchronized(getOutput().isSynchronized() || CORE_SYNC.getValue());
     	c.layout();
     	} else {
@@ -305,15 +299,35 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	final Composite ToolBar = new Composite(c, SWT.NONE);
     	ToolBar.setLayout(new FillLayout(SWT.HORIZONTAL));
     	ToolBar.setLayoutData(new RowData(1330,30));
-    	// BUTTON ADD PANE 300x200
-    	Button button = new Button(ToolBar, SWT.PUSH);
-    	button.setImage(getDefaultImage());
-    	button.setText("Add pane");
-    	button.addListener(SWT.Selection, new Listener() {
+    	// BUTTON ADD PANE
+    	Button addButton = new Button(ToolBar, SWT.PUSH);
+    	addButton.setImage(getDefaultImage());
+    	addButton.setText("Add pane");
+    	addButton.addListener(SWT.Selection, new Listener() {
   
 			@Override
 			public void handleEvent(Event event) {
 				createPane(c);
+			}
+    		
+    	});
+    	
+    	
+    	Button layoutButton = new Button(ToolBar, SWT.PUSH);
+    	layoutButton.setImage(getDefaultImage());
+    	layoutButton.setText("Row Layout");
+    	layoutButton.addListener(SWT.Selection, new Listener() {
+  
+			@Override
+			public void handleEvent(Event event) {
+				if(layoutButton.getText().equals("Row Layout")) {
+					layoutButton.setText("Free Layout");
+					c.setLayout(null);
+				} else {
+					layoutButton.setText("Row Layout");
+					c.setLayout(new RowLayout());
+				}
+				c.requestLayout();
 			}
     		
     	});
@@ -402,12 +416,26 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	int height = 300;
     	// Pane Composite
     	Composite pane = new Composite(c, SWT.BORDER);
-    	pane.setLayout(new RowLayout(SWT.VERTICAL));
+    	pane.setLayout(new FillLayout(SWT.VERTICAL));
     	pane.setSize(width, height);
     	pane.setLayoutData(new RowData(width, height));
     	
+    	Button addButton = new Button(pane, SWT.NONE);
+    	addButton.setText("Add");
+    	addButton.addListener(SWT.Selection, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				ShowSelectionCombo(pane);
+				addButton.dispose();
+	            pane.requestLayout();
+			}
+    		
+    	});
+    	
     	// Toolbar of Pane
-    	createToolbarForPane(pane);
+//    	createToolbarForPane(pane);
     	    	
     	// Update Listener
     	updateListener(c);
@@ -474,7 +502,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	        tracker.dispose();
 	        }
 	      }
-
+	    
 		};
 		itemAdd.addListener(SWT.Selection, listener_toolbar);
 		itemDelete.addListener(SWT.Selection, listener_toolbar);
@@ -559,7 +587,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	    		Text text = new Text(visual, SWT.BORDER);
 	    		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 	    		
-	    		// new
 	    		Button button = new Button(visual, SWT.PUSH);
 	    		button.setText("Open new Shell");
 	    		button.addListener(SWT.Selection, new Listener() {
@@ -567,8 +594,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
 					@Override
 					public void handleEvent(Event event) {
 						// TODO Auto-generated method stub
-//						JFileChooser file = new JFileChooser();
-//						file.showOpenDialog(file);
 						JFileChooser j = new JFileChooser("d:", FileSystemView.getFileSystemView());
 						 
 						// Open the save dialog
@@ -603,7 +628,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 //	    		text_value.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 	    		Combo cb_value = new Combo(visual, SWT.NONE);
 	    		cb_value.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-	        	IMap attr = getOutput().getAgent().getOrCreateAttributes();
+	        	IMap<?, ?> attr = getOutput().getAgent().getOrCreateAttributes();
 	        	int len = getOutput().getAgent().getOrCreateAttributes().size();
 	        	String[] listValue = new String[len];
 	        	attr.getKeys();
@@ -611,7 +636,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	        		listValue[i] = (String) attr.getKeys().get(i);
 	        	}
 	        	cb_value.setItems(listValue);
-	    		
 	    		
 	    		Label lblSize = new Label(visual, SWT.NONE);
 	    		lblSize.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -677,10 +701,10 @@ public abstract class LayeredDisplayView extends GamaViewPart
     	}
     	
     	new Label(visual, SWT.None);
-    	Button btnNewAccept = new Button(visual, SWT.NONE);
-    	btnNewAccept.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-    	btnNewAccept.setText("OK");
-    	btnNewAccept.addListener(SWT.Selection, new Listener() {
+    	Button btnAccept = new Button(visual, SWT.NONE);
+    	btnAccept.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+    	btnAccept.setText("OK");
+    	btnAccept.addListener(SWT.Selection, new Listener() {
 
 			@Override
 			public void handleEvent(Event event) {
@@ -713,58 +737,32 @@ public abstract class LayeredDisplayView extends GamaViewPart
 //		        	pane.requestLayout();
 //		        	visual.dispose();
 		        	
-		        	// Xet Type de hien ra
-		        	Composite child_sub = new Composite(pane, SWT.BORDER | SWT.EMBEDDED);
+		        	// Display
+		        	Composite child_sub = new Composite(pane, SWT.NONE | SWT.EMBEDDED);
 		        	if(l.equals("Map")) {        		
 			        	child_sub.setLayout(new FillLayout());
 			        	child_sub.setLayoutData(new RowData(pane.getSize().x - 10, pane.getSize().y - 50));
 			        	//
 		        	} else		        	
 		        	if(l.equals("Text")) {
-		        		
-		        		
-//		        		IContainer<?, IShape> test2 = test.getTopology().getPlaces();
-//		        		
-//		        		Integer asd = (int) test.getAttribute("total_people_isInfected");
-		        		
-//		        		GamaListArrayWrapper a = (GamaListArrayWrapper) test.getTopology().getPlaces();
-//		        		GamaShape test3 = (GamaShape) a.get(0);
-		        		
-		        		
-//		        		for(String attr : rs.keySet()) {
-//		        			
-//		        		}
-		        		
-		        		
-//		        		rs.forEach((k,v) -> {
-//		        			int tasd = (int) v;
-//		        		});
-		        		
-		        		
+		    		        		
 		        		Text title = (Text) visual.getChildren()[3];
 		        		Combo value_of_metric = (Combo) visual.getChildren()[5];
 		        		String valueAttr = value_of_metric.getItem(value_of_metric.getSelectionIndex());
 		        		
 		        		agentSimulate = getOutput().getAgent();
 		        		temp = (Integer) agentSimulate.getAttribute(valueAttr);
-//		        		IMap<String, Object> rs = agentSimulate.getOrCreateAttributes();
 		        		
 		        		Text unit_of_metric = (Text) visual.getChildren()[9];
 		        		paneManager.put(pane, l + " : " + title.getText());
 		        		
-		        		pane.setSize(400,150);
-		        		pane.setLayoutData(new RowData(400, 150));
 		        		child_sub.setLayout(new GridLayout(2, false));
 		        		child_sub.setLayoutData(new RowData(pane.getSize().x - 10, pane.getSize().y - 50));
 		        		
-		        		// display value
+		        		// Display value
 			        	Label value = new Label(child_sub, SWT.NONE);
 			        	value.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 			        	value.setText(temp.toString());
-//			        	value.setText(getOutput().getAgent().getAttribute(getOutput().getAgent().getOrCreateAttributes().getKeys().get(14)).toString());
-			        	
-			        
-			        	
 			        	
 			        	FontDescriptor descriptor_value = FontDescriptor.createFrom(value.getFont());
 			        	descriptor_value = descriptor_value.setStyle(SWT.NORMAL);
@@ -780,18 +778,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
 			        	descriptor_unit = descriptor_unit.setStyle(SWT.NORMAL);
 			        	descriptor_unit = descriptor_unit.setHeight(15);
 			        	unit.setFont(descriptor_unit.createFont(unit.getDisplay()));
-			        	
-			        	Button update = new Button(pane, SWT.PUSH);
-			        	update.setText("Update Pane");
-			        	update.addListener(SWT.Selection, new Listener() {
-
-							@Override
-							public void handleEvent(Event event) {
-								// TODO Auto-generated method stub
-								
-							}
-			        		
-			        	});
 			        	
 			        	updateListener(pane.getParent());
 			        	
@@ -831,7 +817,6 @@ public abstract class LayeredDisplayView extends GamaViewPart
 		        		String[] mucnguyco = {"Nguy co rat cao", "Nguy co cao", "Nguy co", "Nguy co rat cao", "Nguy co cao", "Nguy co", "Nguy co rat cao", "Nguy co cao", "Nguy co" };
 		        		int[] sovung = {24, 13, 11, 173, 68, 166, 791, 1735, 61 };
 						
-		        		
 		        		for (int loopIndex = 0; loopIndex < 9; loopIndex++) {
 	        		      TableItem item = new TableItem(tab, SWT.NULL);
 	        		      item.setText("");
@@ -909,16 +894,9 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	        			int x = child_sub.getSize().x;
 	        			int y = child_sub.getSize().y;
 	        			
-//	        			int res = Integer.parseInt(t);
-//	        			list_pane.get(res).setParent(child_sub);
-//	        			list_pane.remove(res);
-//	        			comboToolbarDelete.remove(res);
-//	        			comboToolbarResize.remove(res);
-	        			
 	        			Text value;
 	        			
 	        			DateTime a = new DateTime(child_sub, SWT.CALENDAR);
-	        			
 	        			
 	        			Scale b = new Scale(pane, SWT.None);
 	        			int k = child_sub.getSize().y;
@@ -942,8 +920,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
 	        			updateListener(pane.getParent());
 	        		}
 		        	
-		        	
-		        	
+
 		        	child_sub.requestLayout();
 		        	pane.requestLayout();
 		        	visual.dispose();

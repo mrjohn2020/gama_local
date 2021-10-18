@@ -288,18 +288,22 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 	private final List<AbstractLayerStatement> layers;
 	protected IDisplaySurface surface;
 	private int index;
-	// view
+	
+	// Type of view
 	private String view_type = "sashform";
-	private ChartDataSet dataChart;//new
+	
+	// Try get data from declared layers
+	@SuppressWarnings("unused")
+	private ChartDataSet dataChart;
 	
 	final LayeredDisplayData data = new LayeredDisplayData();
 	// Specific to overlays
 	OverlayStatement overlayInfo;
 
-	//tao list surface
+	// List surface
 	protected List<IDisplaySurface> surface_list;
 	
-	// Agent Simulation
+	// Agent simulation
 	private IAgent simulation;
 	
 	public static class DisplaySerializer extends SymbolSerializer<SymbolDescription> {
@@ -457,11 +461,15 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 				nb_layers_overlay++;
 			}
 		}
-		dataChart = getLayers().get(2).getDataSet(); // example
+		
+		// Data from layer (test)
+		dataChart = getLayers().get(2).getDataSet();
+		
 		surface_list = new ArrayList<>(Arrays.asList(new IDisplaySurface[getLayers().size() - nb_layers_overlay]));
 		
 		createSurface(getScope());
 		
+		// Create the clone surfaces
 		for(int i = 0; i < nb_layers - nb_layers_overlay; i++) {
 			createSurfaceClone(getScope().copy("clone"), surface_list.get(i));
 		}
@@ -551,11 +559,9 @@ public class LayeredDisplayOutput extends AbstractDisplayOutput {
 		return surface;
 	}
 	
-	// Get list surface
 	public List<IDisplaySurface> getListSurface() {
 		return surface_list;
 	}
-	
 	
 	@Override
 	public List<? extends ISymbol> getChildren() {
