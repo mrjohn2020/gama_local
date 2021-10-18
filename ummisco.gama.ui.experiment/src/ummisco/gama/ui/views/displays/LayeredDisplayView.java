@@ -237,7 +237,7 @@ public abstract class LayeredDisplayView extends GamaViewPart
    
     @Override
     public void ownCreatePartControl(final Composite c) {
-    	
+    	// ----test rename repository----//
     	String view = getOutput().getViewType();
     	
     	if (view.equals("sashform")) {
